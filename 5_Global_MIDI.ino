@@ -7,6 +7,7 @@ bool pc_in = LOW;
 bool noteon_in = LOW;
 bool noteoff_in = LOW;
 byte inByte;
+byte _clock = 0;
 
 
 void sendMessage(byte type, byte control, byte channel, byte value) {
@@ -43,13 +44,6 @@ void check_custom_led() {
     }
   }
 }
-
-/*void check_layout_led() {
-  byte color = 15; //14;
-  if (current_layout == 1) color = 21;
-  else if (current_layout == 2) color = 9;
-  check_led(16, 50, color);
-}*/
 
 void eeprom_store(byte rcvd_layout, byte  num, byte  type, byte  control, byte  channel) {
   EEPROM.write(100 * rcvd_layout + num, type);

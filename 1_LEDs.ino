@@ -137,8 +137,6 @@ byte const color_index[128][3] = {
 class Led {
   private:
     byte num;
-    bool toggle_fast = HIGH;
-    bool toggle_slow = HIGH;
     bool valueinarray(byte val, byte* arr) {
       for (byte i = 0; i < sizeof(arr); i++) {
         if (arr[i] == val) return true;
@@ -147,10 +145,6 @@ class Led {
       return false;
     }
 
-    void show_color() {
-      leds[num] = CRGB(r * 2, g * 2, b * 2);
-      FastLED.show();
-    }
 
     void show_white() {
       leds[num] = CRGB(100, 100, 100);
@@ -164,6 +158,8 @@ class Led {
     byte r = 0;
     byte g = 0;
     byte b = 0;
+    bool toggle_fast = HIGH;
+    bool toggle_slow = HIGH;
     byte control[NUM_LAYOUT] = {0, 0, 0};
     byte state = 16;
     void set_color(byte color, byte led_state) {
@@ -185,26 +181,27 @@ class Led {
         }
       }
     }
+    
+    void show_color() {
+      leds[num] = CRGB(r * 2, g * 2, b * 2);
+      FastLED.show();
+    }
 
     void led_update(bool button_state) {
       if (!button_state) {
-        toggle_fast = HIGH;
-        toggle_slow = HIGH;
         show_color();
       }
       else show_white();
     }
 
-    void toggle_led() {
-      toggle_fast = !toggle_fast;
-      if (toggle_fast)  toggle_slow = !toggle_slow;
+    void toggle_led(byte beat) {
       if (state == 14) {
-        if (toggle_fast) led_off();
-        else show_color();
+        if (beat==1 || beat==3) show_color();
+        else led_off();
       }
       if (state == 15) {
-        if (toggle_slow) led_off();
-        else show_color();
+        if (beat==1 || beat==2) show_color();
+        else led_off();
       }
     }
 

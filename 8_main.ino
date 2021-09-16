@@ -156,9 +156,9 @@ void loop() {
   
   if (millis() - _now > blinking_speed / 2) {
     disp.inc_scroll();
-    for (byte i = 0; i < NUM_LEDS; i++) {
-      l[i].toggle_led();
+  //  for (byte i = 0; i < NUM_LEDS; i++) {
+  //    l[i].toggle_led();
       _now = millis();
-    }
+  //  }
   }
 }
