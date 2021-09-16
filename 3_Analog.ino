@@ -36,7 +36,7 @@ class AnalogPot {
         }
         else {
           sendUSBControlChange(control[current_layout], valuePot, channel[current_layout]);
-          senderialControlChange(control[current_layout], valuePot, channel[current_layout]);
+          sendSerialControlChange(control[current_layout], valuePot, channel[current_layout]);
         }
       }
     }
