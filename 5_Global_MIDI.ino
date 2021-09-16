@@ -13,11 +13,11 @@ void sendMessage(byte type, byte control, byte channel, byte value) {
   switch (type) {
     case 0:
       sendUSBNote(control, value, channel);
-      senderialNote(control, value, channel);
+      sendSerialNote(control, value, channel);
       break;
     case 1:
       sendUSBControlChange(control, value, channel);
-      senderialControlChange(control, value, channel);
+      sendSerialControlChange(control, value, channel);
       break;
     case 2:
       sendPC(control, channel);
