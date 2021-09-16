@@ -46,11 +46,11 @@ void set_EEPROM() {
   byte default_display [3] = {0, 1, 4};
 
   for (byte layout_num = 0; layout_num < NUM_LAYOUT; layout_num++) {
-    for (byte i = 0; i <= 22; i++) { // Retrieves all EEPROM
+    for (byte i = 0; i <= 22; i++) { // Retrieve all EEPROM
       byte type = EEPROM.read(layout_num * 100 + i);
       byte control = EEPROM.read(layout_num * 100 + i + 30);
       byte channel = EEPROM.read(layout_num * 100 + i + 60);
-      if (i < 6 ) { // Retrieves Short Button
+      if (i < 6 ) { // Retrieve Short Button
         b[i].short_control[layout_num] = default_short[layout_num][i];
         if (control != 255) {
           b[i].short_control[layout_num] = control;
@@ -58,7 +58,7 @@ void set_EEPROM() {
           b[i].short_type[layout_num] = type;
         }
       }
-      if (6 <= i && i < 12) { // Retrieves Long Button
+      if (6 <= i && i < 12) { // Retrieve Long Button
         b[i - 6].long_control[layout_num] = default_long[layout_num][i - 6];
         if (control != 255) {
           b[i - 6].long_control[layout_num] = control;
@@ -66,27 +66,27 @@ void set_EEPROM() {
           b[i - 6].long_type[layout_num] = type;
         }
       }
-      if (12 <= i && i < 18) { // Retrieves LEDs
+      if (12 <= i && i < 18) { // Retrieve LEDs
         l[i - 12].control[layout_num] = default_leds[layout_num][i - 12];
         if (control != 255) {
           l[i - 12].control[layout_num] = control;
         }
       }
-      if (18 <= i && i < 20) { // Retrieves Sliders
+      if (18 <= i && i < 20) { // Retrieve Sliders
         a[i - 18].control[layout_num] = default_sliders[layout_num][i - 18];
         if (control != 255) {
           a[i - 18].control[layout_num] = control;
           a[i - 18].channel[layout_num] = channel;
         }
       }
-      if (i == 20) { // Retrieves Display
+      if (i == 20) { // Retrieve Display
         disp.layout[layout_num] = default_display[layout_num];
         if (control != 255) {
           disp.layout[layout_num] = control;
         }
       }
     }
-    for (byte i = 0; i < NUM_BUTTONS; i++) { // Retrieves buttons snap
+    for (byte i = 0; i < NUM_BUTTONS; i++) { // Retrieve buttons snap
       byte value = EEPROM.read(layout_num * 100 + i + 18);
       if (value != 255) {
         b[i].snap[layout_num] = value;
@@ -94,7 +94,7 @@ void set_EEPROM() {
     }
   }
 
-  for (byte i = 0; i < 10; i++) { // Retrieves Options
+  for (byte i = 0; i < 10; i++) { // Retrieve Options and send them to Live
     byte value = EEPROM.read(300 + i);
     if (value != 255) {
       byte sysex_array[8] = {240, 122, 29, 1, 19, 30 + i, value, 247};
@@ -102,7 +102,7 @@ void set_EEPROM() {
     }
   }
 
-  for (byte i = 0; i < (NUM_BUTTONS + NUM_SLIDERS); i++) { // Retrieves External MIDI
+  for (byte i = 0; i < (NUM_BUTTONS + NUM_SLIDERS); i++) { // Retrieve External MIDI
     byte type = EEPROM.read(276 + i);
     if (type != 255) {
       external_MIDI_type[i] = type;
@@ -117,8 +117,8 @@ void set_EEPROM() {
     }
   }
 
-  if (EEPROM.read(310) != 255) BRIGHTNESS = EEPROM.read(298); // Retrieves LED Brightness
-  if (EEPROM.read(311) != 255) matrix_brightness = EEPROM.read(299); // Retrieves Display Brightness
+  if (EEPROM.read(310) != 255) BRIGHTNESS = EEPROM.read(298); // Retrieve LED Brightness
+  if (EEPROM.read(311) != 255) matrix_brightness = EEPROM.read(299); // Retrieve Display Brightness
 }
 
 void setup() {
