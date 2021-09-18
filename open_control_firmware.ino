@@ -15,6 +15,8 @@ byte const NUM_BUTTONS = 6;
 byte const MAX_CHAR = 20;
 
 int matrix_brightness = 200;
+byte toggle_Col = 13;
+byte toggle_Row = 6;
 
 byte hold_button_time = 1000;
 

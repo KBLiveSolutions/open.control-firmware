@@ -166,12 +166,12 @@ class Display {
         scrolled = HIGH;
       }
     }
-
+byte matrix_value = 211;
     void tick_on() {
-     // delayMicroseconds(50);
       PORTC &= ~(1 << PORTC7);  //C7
       PORTD &= ~(1 << PORTD7);  //D7
-    //  delayMicroseconds(20);
+   //   analogWrite(toggle_Col, matrix_value);
+     // analogWrite(toggle_Row, matrix_value);
     }
 
     void tick_off() {
@@ -179,6 +179,8 @@ class Display {
       PORTF &= ~(1 << PORTF1);  //F1
       PORTD |= 1 << PORTD6; //D6
       PORTD &= ~(1 << PORTD6);  //D6
+    //  analogWrite(toggle_Col, matrix_value);
+  //   analogWrite(toggle_Row, matrix_value);
       PORTC |= 1 << PORTC7;;  //C7
       PORTD |= 1 << PORTD7;  //D7
     }
