@@ -192,12 +192,12 @@ void onExternalMessageReceived(byte channel, byte control, byte value, byte type
       }
     }
   }
-  for (byte i = 0; i < NUM_SLIDERS; i++) {
-    is_Control = HIGH;
-    if (channel == external_MIDI_channel[6 + i] && control == external_MIDI_control[6 + i]) {
-      sendUSBControlChange(a[i].control[current_layout], value, a[i].channel[current_layout]);
+    for (byte i = 0; i < NUM_SLIDERS; i++) {
+      is_Control = HIGH;
+      if (channel == external_MIDI_channel[6 + i] && control == external_MIDI_control[6 + i]) {
+        sendUSBControlChange(a[i].control[current_layout], value, a[i].channel[current_layout]);
+      }
     }
-  }
   if (!is_Control) {
     if (type == 0) sendSerialNote(control, value, channel);
     if (type == 1) sendSerialControlChange(control, value, channel);

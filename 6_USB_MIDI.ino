@@ -192,7 +192,6 @@ void onUSBSysEx(const uint8_t *data) { //, unsigned _length, bool complete) {
             a[num].control[rcvd_layout] = control;
             a[num].channel[rcvd_layout] = channel;
             eeprom_store(rcvd_layout, num + 18, 1, control, channel);
-            // if (btn_type==1)
             { byte acknowledgment_array[7] = {240, 122, 29, 1, 19, 78, 247};
               sendUSBSysEx(acknowledgment_array, 7);
             }

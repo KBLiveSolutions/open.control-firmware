@@ -108,11 +108,11 @@ void set_EEPROM() {
       external_MIDI_type[i] = type;
     }
     byte control = EEPROM.read(284 + i);
-    if (EEPROM.read(280 + i) != 255) {
+    if (control != 255) {
       external_MIDI_control[i] = control;
     }
     byte channel = EEPROM.read(292 + i);
-    if (EEPROM.read(280 + i) != 255) {
+    if (channel != 255) {
       external_MIDI_channel[i] = channel;
     }
   }
