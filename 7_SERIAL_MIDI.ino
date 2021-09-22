@@ -27,7 +27,6 @@ void onSerialSysEx(const uint8_t *data) { //, unsigned _length, bool complete) {
       case 2: {    // Handshake with Live
           byte sysexArrayBoot[] = {240, 122, 29, 1, 19, 2, 247};  //String that answers to the MIDI Remote Script for Ableton Live
           sendSerialSysex(sysexArrayBoot, 7);
-          // check_layout_led();
           for (byte i = 0; i < 2; i++) {
             if (EEPROM.read(300 + i) != 255) {
               byte sysex_array[8] = {240, 122, 29, 1, 19, 30 + i, EEPROM.read(300 + i), 247};

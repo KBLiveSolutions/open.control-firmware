@@ -166,7 +166,6 @@ class Display {
         scrolled = HIGH;
       }
     }
-byte matrix_value = 211;
     void tick_on() {
       PORTC &= ~(1 << PORTC7);  //C7
       PORTD &= ~(1 << PORTD7);  //D7

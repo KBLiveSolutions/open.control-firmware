@@ -406,11 +406,6 @@ void onUSBMIDIPacketReceived(byte header, byte byte1, byte byte2, byte byte3) {
   }
 }
 void onUSBControlChange(byte channel, byte control, byte value) {
-  //  if (control == 119) {
-  //  for (byte i = 0; i < NUM_LEDS; i++) {
-  //    l[i].toggle_led();
-  //  }
-  //}
   check_led(channel, control, value);
 }
 
