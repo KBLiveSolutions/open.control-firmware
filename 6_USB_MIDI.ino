@@ -37,9 +37,11 @@ void onUSBSysEx(const uint8_t *data) { //, unsigned _length, bool complete) {
         case 2: {    // Handshake with Live
             byte sysexArrayBoot[] = {240, 122, 29, 1, 19, 2, 247};  //String that answers to the MIDI Remote Script for Ableton Live
             sendUSBSysEx(sysexArrayBoot, 7);
-            for (byte i = 0; i < 2; i++) {
-              if (EEPROM.read(300 + i) != 255) {
-                byte sysex_array[8] = {240, 122, 29, 1, 19, 30 + i, EEPROM.read(300 + i), 247};
+            for (byte i = 0; i < 10; i++) { // sending the options
+              byte option = EEPROM.read(300 + i);
+              if (option != 255) {
+                byte sysex_array[8] = {240, 122, 29, 1, 19, 30 + i, option, 247};
+                sendUSBSysEx(sysex_array, 8);
               }
             }
           }
@@ -320,26 +322,14 @@ void onUSBMIDIPacketReceived(byte header, byte byte1, byte byte2, byte byte3) {
     switch (header & 0x0F) {
       case 0x0F:
         if (byte1 == 248) { // Clock
-          _clock += 1;
-          if (_clock % 6 == 0) {
-            for (byte i = 0; i < NUM_LEDS; i++) {
-              l[i].toggle_led(int(_clock/6));
-            }
-            if (_clock == 24) _clock = 0;
-          }
+          clock_received();
+          USB_clock = HIGH;
         }
-
         if (byte1 == 250) { // Start
-          _clock = 0;
-          for (byte i = 0; i < NUM_LEDS; i++) {
-            l[i].show_color();
-          }
+          clock_start();
         }
-
         if (byte1 == 252) { // Stop
-          for (byte i = 0; i < NUM_LEDS; i++) {
-            l[i].show_color();
-          }
+          clock_stop();
         }
 
 

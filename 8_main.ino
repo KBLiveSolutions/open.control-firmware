@@ -145,8 +145,8 @@ void loop() {
  // ticker++;
 
   if (but == NUM_BUTTONS) but = 0;
-  if (ana == NUM_SLIDERS) ana = 0;
-  if (ticker == 32) ticker = 0;
+  if (ana == 2) ana = 0;
+  if (ticker == 33) ticker = 0;
   
   if (micros() - _now_char > 477) {
     disp.show_char(ticker);
@@ -154,10 +154,8 @@ void loop() {
   ticker++;
   }
   
-  if (millis() - _now > blinking_speed / 2) {
+  if (millis() - _now > scrolling_speed / 2) {
     disp.inc_scroll();
-  //  for (byte i = 0; i < NUM_LEDS; i++) {
-  //    l[i].toggle_led();
       _now = millis();
   //  }
   }

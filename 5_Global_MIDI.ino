@@ -8,6 +8,7 @@ bool noteon_in = LOW;
 bool noteoff_in = LOW;
 byte inByte;
 byte _clock = 0;
+bool USB_clock;
 
 
 void sendMessage(byte type, byte control, byte channel, byte value) {
@@ -35,6 +36,28 @@ void check_led(byte channel, byte control, byte value) {
   }
 }
 
+void clock_received(){
+  _clock += 1;
+  if (_clock % 6 == 0) {
+    for (byte i = 0; i < NUM_LEDS; i++) {
+      l[i].toggle_led(int(_clock/6));
+    }
+    if (_clock == 24) _clock = 0;
+  }
+}
+
+void clock_start(){
+  _clock = 0;
+  for (byte i = 0; i < NUM_LEDS; i++) {
+    l[i].show_color();
+  }
+}
+
+void clock_stop(){
+  for (byte i = 0; i < NUM_LEDS; i++) {
+    l[i].show_color();
+  }
+}
 
 void check_custom_led() {
   for (int i = 0; i < NUM_LEDS; i++) {

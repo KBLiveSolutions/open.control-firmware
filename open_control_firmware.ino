@@ -1,4 +1,4 @@
-#include <Arduino.h> 
+// #include <Arduino.h> 
 #include <Bounce2.h>
 #include <EEPROM.h>
 #include <ResponsiveAnalogRead.h>
@@ -29,7 +29,7 @@ int BRIGHTNESS = 50;
 #define LED_TYPE WS2812
 #define COLOR_ORDER GRB
 
-unsigned long blinking_speed = 500;
+unsigned long scrolling_speed = 200;
 
 const int b_pins[NUM_BUTTONS] = {11, 3, 2, 9, 10, 5};
 #define LED_PIN A2

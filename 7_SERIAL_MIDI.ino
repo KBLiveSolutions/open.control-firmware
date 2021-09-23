@@ -27,10 +27,12 @@ void onSerialSysEx(const uint8_t *data) { //, unsigned _length, bool complete) {
       case 2: {    // Handshake with Live
           byte sysexArrayBoot[] = {240, 122, 29, 1, 19, 2, 247};  //String that answers to the MIDI Remote Script for Ableton Live
           sendSerialSysex(sysexArrayBoot, 7);
-          for (byte i = 0; i < 2; i++) {
-            if (EEPROM.read(300 + i) != 255) {
-              byte sysex_array[8] = {240, 122, 29, 1, 19, 30 + i, EEPROM.read(300 + i), 247};
-            }
+            for (byte i = 0; i < 10; i++) { // sending the options
+              byte option = EEPROM.read(300 + i);
+              if (option != 255) {
+                byte sysex_array[8] = {240, 122, 29, 1, 19, 30 + i, option, 247};
+                sendSerialSysex(sysex_array, 8);
+              }
           }
         }
         break;
@@ -135,7 +137,16 @@ void onSerialByteReceived(byte inByte){
       }
       else if (inByte >= 192 && inByte < 208) {
         pc_in = HIGH;
+      }      
+      else if (inByte == 248) {
+        if (!USB_clock) clock_received();
       }
+      else if (inByte == 250) {
+        if (!USB_clock) clock_start();
+      }        
+      else if (inByte == 252) { // Stop
+          clock_stop();
+        }
     }
     if (sysex_in) {
       Serial1.readBytesUntil(247, sysex_data, 20);

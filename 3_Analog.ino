@@ -16,8 +16,11 @@ class AnalogPot {
     byte lastValuePot;
     void check_pot() {
       analog_read.update();
-      valuePot = map( analog_read.getValue(), 0, 1024, 0, 128);
-      valuePot = constrain( valuePot, 0, 127);
+      int analog_value = analog_read.getValue();
+      if (analog_value < 1022){
+        valuePot = map(analog_value , 0, 1022, 0, 128);
+        valuePot = constrain( valuePot, 0, 127);
+      }
 
       if ((valuePot != lastValuePot)) {
         lastValuePot = valuePot;
@@ -31,9 +34,9 @@ class AnalogPot {
           }
           if (pin == a_pins[0] || pin == a_pins[2]) {
             matrix_brightness =  map(analog_read.getValue(), 1024, 0, 0, 1024);
-            EEPROM.write(311, matrix_brightness);
-          }
-        }
+             EEPROM.write(311, matrix_brightness);
+           }
+         }
         else {
           sendUSBControlChange(control[current_layout], valuePot, channel[current_layout]);
           sendSerialControlChange(control[current_layout], valuePot, channel[current_layout]);

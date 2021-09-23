@@ -196,11 +196,11 @@ class Led {
 
     void toggle_led(byte beat) {
       if (state == 14) {
-        if (beat==1 || beat==3) show_color();
+        if (beat==2 || beat==4) show_color();
         else led_off();
       }
       if (state == 15) {
-        if (beat==1 || beat==2) show_color();
+        if (beat==1 || beat==4) show_color();
         else led_off();
       }
     }
