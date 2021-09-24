@@ -198,7 +198,7 @@ class Display {
         PORTD &= ~(1 << PORTD4); //D4
         PORTD |= 1 << PORTD4; //D4
       }
-    //  delayMicroseconds(matrix_brightness);
+     // delayMicroseconds(214);
       PORTF &= ~(1 << PORTF4);  //F4
       PORTF |= 1 << PORTF4;  //F4
       tick_on();

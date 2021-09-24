@@ -138,20 +138,18 @@ void loop() {
 
   b[but].update_button();
   a[ana].check_pot();
-  //disp.show_char(ticker);
 
   but ++;
   ana ++;
- // ticker++;
 
   if (but == NUM_BUTTONS) but = 0;
   if (ana == 2) ana = 0;
   if (ticker == 33) ticker = 0;
   
-  if (micros() - _now_char > 477) {
+  if (micros() - _now_char > 237) {
     disp.show_char(ticker);
     _now_char = micros();
-  ticker++;
+    ticker++;
   }
   
   if (millis() - _now > scrolling_speed / 2) {
