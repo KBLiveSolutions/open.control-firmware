@@ -127,21 +127,17 @@ void setup() {
   set_EEPROM();
   set_led_matrix();
   disp.build_text(5);
-  Timer3.initialize(253);
+  Timer3.initialize(153);
   Timer3.attachInterrupt(tick_matrix); // blinkLED to run every 0.15 seconds
   Serial1.begin(31250);
 }
 
 void tick_matrix(){
   if (ticker == 33) ticker = 0;
- // if (micros() - _now_char > 237) {
     disp.show_char(ticker);
-//    _now_char = micros();
     ticker++;
- // } 
 }
 void loop() {
-
   rx = MidiUSB.read();
   if (rx.header) onUSBMIDIPacketReceived(rx.header, rx.byte1, rx.byte2, rx.byte3);
   if (Serial1.available()) onSerialByteReceived( Serial1.read());
@@ -158,6 +154,5 @@ void loop() {
   if (millis() - _now > scrolling_speed / 2) {
     disp.inc_scroll();
       _now = millis();
-  //  }
   }
 }

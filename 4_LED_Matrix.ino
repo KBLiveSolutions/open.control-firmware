@@ -169,17 +169,18 @@ class Display {
     void tick_on() {
       PORTC &= ~(1 << PORTC7);  //C7
       PORTD &= ~(1 << PORTD7);  //D7
-   //   analogWrite(toggle_Col, matrix_value);
-     // analogWrite(toggle_Row, matrix_value);
+    //  analogWrite(toggle_Col, matrix_value);
+    //  analogWrite(toggle_Row, matrix_value);
     }
+int matrix_value = 200;
 
     void tick_off() {
       PORTF |= 1 << PORTF1; //F1
       PORTF &= ~(1 << PORTF1);  //F1
       PORTD |= 1 << PORTD6; //D6
       PORTD &= ~(1 << PORTD6);  //D6
-    //  analogWrite(toggle_Col, matrix_value);
-  //   analogWrite(toggle_Row, matrix_value);
+   //   analogWrite(toggle_Col, matrix_value);
+   //  analogWrite(toggle_Row, matrix_value);
       PORTC |= 1 << PORTC7;;  //C7
       PORTD |= 1 << PORTD7;  //D7
     }
