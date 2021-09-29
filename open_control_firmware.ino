@@ -4,6 +4,7 @@
 #include <ResponsiveAnalogRead.h>
 #include <FastLED.h>
 #include <MIDIUSB.h>
+#include <TimerThree.h>
 
 byte const NUM_LAYOUT = 3;
 byte current_layout = 0;

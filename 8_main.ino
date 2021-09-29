@@ -127,9 +127,19 @@ void setup() {
   set_EEPROM();
   set_led_matrix();
   disp.build_text(5);
+  Timer3.initialize(253);
+  Timer3.attachInterrupt(tick_matrix); // blinkLED to run every 0.15 seconds
   Serial1.begin(31250);
 }
 
+void tick_matrix(){
+  if (ticker == 33) ticker = 0;
+ // if (micros() - _now_char > 237) {
+    disp.show_char(ticker);
+//    _now_char = micros();
+    ticker++;
+ // } 
+}
 void loop() {
 
   rx = MidiUSB.read();
@@ -144,13 +154,6 @@ void loop() {
 
   if (but == NUM_BUTTONS) but = 0;
   if (ana == 2) ana = 0;
-  if (ticker == 33) ticker = 0;
-  
-  if (micros() - _now_char > 237) {
-    disp.show_char(ticker);
-    _now_char = micros();
-    ticker++;
-  }
   
   if (millis() - _now > scrolling_speed / 2) {
     disp.inc_scroll();
