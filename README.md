@@ -4,7 +4,7 @@
 
 ## This is the Arduino file for open·control
 
-* Download the content of this Repository by clicking on Code -> Download ZIP
+* [Download the content of this Repository](https://github.com/KBLiveSolutions/open.control-firmware/archive/refs/heads/main.zip)
 * Download and install the [Arduino IDE](https://www.arduino.cc/en/software/)
 * Download the following libraries: [Bounce2](https://github.com/thomasfredericks/Bounce2/archive/refs/heads/master.zip), [ResponsiveAnalogRead](https://github.com/dxinteractive/ResponsiveAnalogRead/archive/refs/heads/master.zip), [FastLED](https://github.com/FastLED/FastLED/archive/refs/heads/master.zip), [MIDIUSB](https://github.com/arduino-libraries/MIDIUSB/archive/refs/heads/master.zip), [TimerThree](https://github.com/PaulStoffregen/TimerThree/archive/refs/heads/master.zip)
 
