@@ -8,7 +8,7 @@ midiEventPacket_t rx;
 
 void set_led_matrix() {
   DDRC |= 1 << DDC7;
-  DDRD |= 1 << DDD7;
+ // DDRD |= 1 << DDD7;
   DDRF |= 1 << DDF4;
   DDRD |= 1 << DDD6;
   DDRD |= 1 << DDD4;
@@ -127,7 +127,9 @@ void setup() {
   set_EEPROM();
   set_led_matrix();
   disp.build_text(5);
-  Timer3.initialize(153);
+ // pinMode(toggle_Col, OUTPUT);
+  pinMode(toggle_Row, OUTPUT);
+  Timer3.initialize(50);
   Timer3.attachInterrupt(tick_matrix); // blinkLED to run every 0.15 seconds
   Serial1.begin(31250);
 }
