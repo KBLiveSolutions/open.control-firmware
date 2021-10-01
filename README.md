@@ -10,16 +10,18 @@
 
 
 ## Replace Arduino's boards.txt file:
+
 OSX:
 * go to Applications, right click on Arduino, and show content
 * go to Java/hardware/arduino/avr
 * replace the existing boards.txt with the one included in the open.control-firmware.zip
+
 Windows:
 * go to c:\program files (x85)\Arduino\hardware\arduino\avr
 * replace the existing boards.txt with the one included in the open.control-firmware.zip
-Windows:
 
 ## Install the Libraries:
+
 * Open Arduino
 * go to the Sketch menu Include Library -> Add .ZIP Library
 * choose each library one by one
