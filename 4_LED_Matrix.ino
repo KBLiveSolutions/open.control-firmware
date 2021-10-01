@@ -171,6 +171,7 @@ class Display {
   //    PORTD &= ~(1 << PORTD7);  //D7
      analogWrite(toggle_Col, matrix_brightness);
  //     analogWrite(toggle_Row, matrix_value);
+   //   delayMicroseconds(5);
     }
 int matrix_value = 200;
 
@@ -179,7 +180,7 @@ int matrix_value = 200;
       PORTF &= ~(1 << PORTF1);  //F1
       PORTD |= 1 << PORTD6; //D6
       PORTD &= ~(1 << PORTD6);  //D6
-      analogWrite(toggle_Col, matrix_brightness);
+ //     analogWrite(toggle_Col, matrix_brightness);
  //    analogWrite(toggle_Row, 0);
       PORTC |= 1 << PORTC7;;  //C7
    //   PORTD |= 1 << PORTD7;  //D7
@@ -199,7 +200,7 @@ int matrix_value = 200;
         PORTD &= ~(1 << PORTD4); //D4
         PORTD |= 1 << PORTD4; //D4
       }
-      // delayMicroseconds(24);
+       delayMicroseconds(14);
       PORTF &= ~(1 << PORTF4);  //F4
       PORTF |= 1 << PORTF4;  //F4
       tick_on();

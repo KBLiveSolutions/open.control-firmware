@@ -117,8 +117,8 @@ void set_EEPROM() {
     }
   }
 
-  if (EEPROM.read(310) != 255) BRIGHTNESS = EEPROM.read(298); // Retrieve LED Brightness
-  if (EEPROM.read(311) != 255) matrix_brightness = EEPROM.read(299); // Retrieve Display Brightness
+  if (EEPROM.read(310) != 255) BRIGHTNESS = EEPROM.read(310); // Retrieve LED Brightness
+  if (EEPROM.read(311) != 255) matrix_brightness = EEPROM.read(311); // Retrieve Display Brightness
 }
 
 void setup() {
@@ -129,7 +129,7 @@ void setup() {
   disp.build_text(5);
  // pinMode(toggle_Col, OUTPUT);
   pinMode(toggle_Row, OUTPUT);
-  Timer3.initialize(50);
+  Timer3.initialize(57);
   Timer3.attachInterrupt(tick_matrix); // blinkLED to run every 0.15 seconds
   Serial1.begin(31250);
 }
