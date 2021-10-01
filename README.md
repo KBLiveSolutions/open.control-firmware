@@ -14,6 +14,10 @@ OSX:
 * go to Applications, right click on Arduino, and show content
 * go to Java/hardware/arduino/avr
 * replace the existing boards.txt with the one included in the open.control-firmware.zip
+Windows:
+* go to c:\program files (x85)\Arduino\hardware\arduino\avr
+* replace the existing boards.txt with the one included in the open.control-firmware.zip
+Windows:
 
 ## Install the Libraries:
 * Open Arduino
@@ -23,8 +27,9 @@ OSX:
 ## Open open_control_firmware.ino
 
 **Conect open·control and select the board:**
-* In Arduino Tools menu, select Board -> open.control
-* Port: /USBMIDI1
+In Arduino Tools menu, select :
+* Board -> open.control
+* Port: /dev/cu.usbmodemMIDI1
 
 ## You are now ready to upload the firmware, just click on the Arrow in the toolbar, or press Cmd-U
 
