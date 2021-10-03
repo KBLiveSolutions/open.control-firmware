@@ -2,14 +2,17 @@
 
 # open·control firmware
 
-## This is the Arduino file for open·control
+## This is the firmware file for open·control
 
-* [Download the content of this Repository](https://github.com/KBLiveSolutions/open.control-firmware/archive/refs/heads/main.zip)
-* Download and install the [Arduino IDE](https://www.arduino.cc/en/software/)
-* Download the following libraries: [Bounce2](https://github.com/thomasfredericks/Bounce2/archive/refs/heads/master.zip), [ResponsiveAnalogRead](https://github.com/dxinteractive/ResponsiveAnalogRead/archive/refs/heads/master.zip), [FastLED](https://github.com/FastLED/FastLED/archive/refs/heads/master.zip), [MIDIUSB](https://github.com/arduino-libraries/MIDIUSB/archive/refs/heads/master.zip), [TimerThree](https://github.com/PaulStoffregen/TimerThree/archive/refs/heads/master.zip)
+## If you have already installed the Arduino IDE and Libraries, you can skip to section 4.
 
+## First time install:
 
-## Replace Arduino's boards.txt file:
+### 1. Install Arduino
+
+Download and install the [Arduino IDE](https://www.arduino.cc/en/software/)
+
+### 2. Replace Arduino's boards.txt file:
 
 OSX:
 * go to Applications, right click on Arduino, and show content
@@ -20,15 +23,17 @@ Windows:
 * go to c:\program files (x85)\Arduino\hardware\arduino\avr
 * replace the existing boards.txt with the one included in the open.control-firmware.zip
 
-## Install the Libraries:
+### 3. Install the Libraries:
 
+* Download the following libraries: [Bounce2](https://github.com/thomasfredericks/Bounce2/archive/refs/heads/master.zip), [ResponsiveAnalogRead](https://github.com/dxinteractive/ResponsiveAnalogRead/archive/refs/heads/master.zip), [FastLED](https://github.com/FastLED/FastLED/archive/refs/heads/master.zip), [MIDIUSB](https://github.com/arduino-libraries/MIDIUSB/archive/refs/heads/master.zip), [TimerThree](https://github.com/PaulStoffregen/TimerThree/archive/refs/heads/master.zip)
 * Open Arduino
 * go to the Sketch menu Include Library -> Add .ZIP Library
 * choose each library one by one
 
-## Open open_control_firmware.ino
+### 4. Open the firmware file
 
-**Conect open·control and select the board:**
+* Download the content of this [Repository](https://github.com/KBLiveSolutions/open.control-firmware/archive/refs/heads/main.zip)
+* Make sure open·control is connected
 In Arduino Tools menu, select :
 * Board -> open.control
 * Port: /dev/cu.usbmodemMIDI1
