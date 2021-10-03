@@ -2,8 +2,7 @@
 
 # open·control firmware
 
-### Download the content of this Repository
-Click on **[Code: Download ZIP]** or click [here](https://github.com/KBLiveSolutions/open.control-firmware/archive/refs/heads/main.zip)
+### [Download the content of this Repository](https://github.com/KBLiveSolutions/open.control-firmware/archive/refs/heads/main.zip)
 
 ***If you have already installed the Arduino IDE and Libraries, you can skip to [section 4](#4-open-the-firmware-file).***
 ## First time install:
