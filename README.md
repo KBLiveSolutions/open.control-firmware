@@ -33,10 +33,14 @@ Windows:
 ### 4. Open the firmware file
 
 * Download the content of this [Repository](https://github.com/KBLiveSolutions/open.control-firmware/archive/refs/heads/main.zip)
+* Open the file *open_control_firmware.ino* contained in the unzipped folder
+* If being asked to create a folder, click Yes
 * Make sure open·control is connected
 In Arduino Tools menu, select :
 * Board -> open.control
-* Port: /dev/cu.usbmodemMIDI1
+* Port: 
+    * OSX: /dev/cu.usbmodemMIDI1
+    * Windows: /COM3
 
 ## You are now ready to upload the firmware, just click on the Arrow in the toolbar, or press Cmd-U
 
