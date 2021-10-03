@@ -2,8 +2,10 @@
 
 # open·control firmware
 
-***If you have already installed the Arduino IDE and Libraries, you can skip to [section 4](#4-open-the-firmware-file).***
+## Download the content of this Repository
+Click on **Code: Download ZIP** or click [here](https://github.com/KBLiveSolutions/open.control-firmware/archive/refs/heads/main.zip)
 
+***If you have already installed the Arduino IDE and Libraries, you can skip to [section 4](#4-open-the-firmware-file).***
 ## First time install:
 
 ### 1. Install Arduino
@@ -30,7 +32,7 @@ Windows:
 
 ### 4. Open the firmware file
 
-* Download the content of this [Repository](https://github.com/KBLiveSolutions/open.control-firmware/archive/refs/heads/main.zip)
+
 * Open in Arduino the file *open_control_firmware.ino* contained in the unzipped folder
 * If being asked to create a folder, click Yes
 * Make sure open·control is connected
