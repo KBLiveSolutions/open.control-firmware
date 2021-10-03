@@ -4,7 +4,7 @@
 
 ## This is the firmware file for open·control
 
-** If you have already installed the Arduino IDE and Libraries, you can skip to section 4. **
+**If you have already installed the Arduino IDE and Libraries, you can skip to section 4.**
 
 ## First time install:
 
@@ -36,11 +36,11 @@ Windows:
 * Open the file *open_control_firmware.ino* contained in the unzipped folder
 * If being asked to create a folder, click Yes
 * Make sure open·control is connected
-In Arduino Tools menu, select :
-* Board -> open.control
-* Port: 
-    * OSX: /dev/cu.usbmodemMIDI1
-    * Windows: /COM3
+* In Arduino Tools menu, select : 
+    * Board -> open.control
+    * Port: 
+        * OSX: /dev/cu.usbmodemMIDI1
+        * Windows: /COM3
 
 ## You are now ready to upload the firmware, just click on the Arrow in the toolbar, or press Cmd-U
 
