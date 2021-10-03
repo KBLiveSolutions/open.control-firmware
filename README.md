@@ -2,7 +2,7 @@
 
 # open·control firmware
 
-** *If you have already installed the Arduino IDE and Libraries, you can skip to [section 4](#4-open-the-firmware-file).* **
+***If you have already installed the Arduino IDE and Libraries, you can skip to [section 4](#4-open-the-firmware-file).***
 
 ## First time install:
 
