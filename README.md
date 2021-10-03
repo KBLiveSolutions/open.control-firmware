@@ -41,7 +41,7 @@ Windows:
         * OSX: /dev/cu.usbmodemMIDI1
         * Windows: /COM3
 
-## You are now ready to upload the firmware, just click on the Arrow in the toolbar, or press Cmd-U
+### You are now ready to upload the firmware, just click on the Arrow in the toolbar, or press Cmd-U
 
 
 
