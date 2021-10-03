@@ -4,7 +4,7 @@
 
 ## This is the firmware file for open·control
 
-**If you have already installed the Arduino IDE and Libraries, you can skip to section 4.**
+**If you have already installed the Arduino IDE and Libraries, you can skip to [section 4](#4-open-the-firmware-file).**
 
 ## First time install:
 
@@ -20,7 +20,7 @@ OSX:
 * replace the existing boards.txt with the one included in the open.control-firmware.zip
 
 Windows:
-* go to c:\program files (x85)\Arduino\hardware\arduino\avr
+* go to c:\program files\Arduino\hardware\arduino\avr
 * replace the existing boards.txt with the one included in the open.control-firmware.zip
 
 ### 3. Install the Libraries:
