@@ -15,25 +15,25 @@ Download and install the [Arduino IDE](https://www.arduino.cc/en/software/)
 ### 2. Replace Arduino's boards.txt file:
 
 OSX:
-* go to Applications, right click on Arduino, and show content
-* go to Java/hardware/arduino/avr
-* replace the existing boards.txt with the one included in the open.control-firmware.zip
+* Go to Applications, right click on Arduino, and show content
+* Go to Java/hardware/arduino/avr
+* Replace the existing boards.txt with the one included in the open.control-firmware.zip
 
 Windows:
-* go to c:\program files\Arduino\hardware\arduino\avr
-* replace the existing boards.txt with the one included in the open.control-firmware.zip
+* Go to c:\program files\Arduino\hardware\arduino\avr
+* Replace the existing boards.txt with the one included in the open.control-firmware.zip
 
 ### 3. Install the Libraries:
 
 * Download the following libraries: [Bounce2](https://github.com/thomasfredericks/Bounce2/archive/refs/heads/master.zip), [ResponsiveAnalogRead](https://github.com/dxinteractive/ResponsiveAnalogRead/archive/refs/heads/master.zip), [FastLED](https://github.com/FastLED/FastLED/archive/refs/heads/master.zip), [MIDIUSB](https://github.com/arduino-libraries/MIDIUSB/archive/refs/heads/master.zip), [TimerThree](https://github.com/PaulStoffregen/TimerThree/archive/refs/heads/master.zip)
 * Open Arduino
-* go to the Sketch menu Include Library -> Add .ZIP Library
-* choose each library one by one
+* Go to the Sketch menu Include Library -> Add .ZIP Library
+* Choose each library one by one
 
 ### 4. Open the firmware file
 
 * Download the content of this [Repository](https://github.com/KBLiveSolutions/open.control-firmware/archive/refs/heads/main.zip)
-* Open the file *open_control_firmware.ino* contained in the unzipped folder
+* Open in Arduino the file *open_control_firmware.ino* contained in the unzipped folder
 * If being asked to create a folder, click Yes
 * Make sure open·control is connected
 * In Arduino Tools menu, select : 
