@@ -4,7 +4,7 @@
 
 ## This is the firmware file for open·control
 
-## If you have already installed the Arduino IDE and Libraries, you can skip to section 4.
+** If you have already installed the Arduino IDE and Libraries, you can skip to section 4. **
 
 ## First time install:
 
