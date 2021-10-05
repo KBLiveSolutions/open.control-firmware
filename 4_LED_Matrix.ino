@@ -167,43 +167,42 @@ class Display {
       }
     }
     void tick_on() {
-      PORTC &= ~(1 << PORTC7);  //C7
-  //    PORTD &= ~(1 << PORTD7);  //D7
-     analogWrite(toggle_Col, matrix_brightness);
- //     analogWrite(toggle_Row, matrix_value);
-   //   delayMicroseconds(5);
+    //  PORTC &= ~(1 << PORTC7);  //C7 toggle_Col
+    //  PORTD &= ~(1 << PORTD7);  //D7 toggle_Row
+   //   delayMicroseconds(94);
     }
-int matrix_value = 200;
+
 
     void tick_off() {
-      PORTF |= 1 << PORTF1; //F1
-      PORTF &= ~(1 << PORTF1);  //F1
-      PORTD |= 1 << PORTD6; //D6
-      PORTD &= ~(1 << PORTD6);  //D6
- //     analogWrite(toggle_Col, matrix_brightness);
- //    analogWrite(toggle_Row, 0);
-      PORTC |= 1 << PORTC7;;  //C7
-   //   PORTD |= 1 << PORTD7;  //D7
+   //  analogWrite(toggle_Col, 200);
+      PORTF |= 1 << PORTF1; //F1 latch_Col
+      PORTF &= ~(1 << PORTF1);  //F1 latch_Col
+      PORTD |= 1 << PORTD6; //D6 latch_Row
+      PORTD &= ~(1 << PORTD6);  //D6 latch_Row
+   //  analogWrite(toggle_Col, 0);
+  //    PORTD |= 1 << PORTD7;;  //D7 toggle_Row
+  //   PORTC |= 1 << PORTC7;;  //C7 toggle_Col
+     analogWrite(toggle_Col, matrix_brightness);
     }
 
     void show_char(int i) {
-      tick_off();
+    //  tick_on();
+    //   delayMicroseconds(14);
       int temp = concat_text[i - 1 + scroller];
       byte data_column = column_data[i];
-        if (data_column) PORTF |= 1 << PORTF0;
-        else PORTF&= ~(1 << PORTF0);
+        if (data_column) PORTF |= 1 << PORTF0;  // F0 data_Col
+        else PORTF&= ~(1 << PORTF0);  // F0 data_Col
       for (int j = 0; j < 8; j++) {
         byte data_row = (temp & (0x80));
-        if (data_row) PORTB |= 1 << PORTB4;
-        else PORTB &= ~(1 << PORTB4);
+        if (data_row) PORTB |= 1 << PORTB4;   // B4 data_Row
+        else PORTB &= ~(1 << PORTB4);   // B4 data_Row
         temp <<= 1;
-        PORTD &= ~(1 << PORTD4); //D4
-        PORTD |= 1 << PORTD4; //D4
+        PORTD &= ~(1 << PORTD4);  //D4 clock_Row
+        PORTD |= 1 << PORTD4;   //D4 clock_Row
       }
-       delayMicroseconds(14);
-      PORTF &= ~(1 << PORTF4);  //F4
-      PORTF |= 1 << PORTF4;  //F4
-      tick_on();
+      PORTF &= ~(1 << PORTF4);  //F4 clock_Col
+      PORTF |= 1 << PORTF4;  //F4 clock_Col
+      tick_off();
     }
 };
 

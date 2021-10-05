@@ -33,7 +33,7 @@ class AnalogPot {
             EEPROM.write(310, BRIGHTNESS);
           }
           if (pin == a_pins[0] || pin == a_pins[2]) {
-            matrix_brightness =  map(analog_read.getValue(), 1024, 0, 0, 200);
+            matrix_brightness =  map(analog_read.getValue(), 1024, 0, 0, 210);
              EEPROM.write(311, matrix_brightness);
            }
          }
