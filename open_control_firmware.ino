@@ -18,7 +18,7 @@ int matrix_brightness = 200;
 byte toggle_Col = 13; // PC7
 byte toggle_Row = 6;  // PD7
 
-byte hold_button_time = 1500;
+int hold_button_time = 800;
 
 byte external_MIDI_control[NUM_BUTTONS+NUM_SLIDERS] = {1, 2, 3, 4, 5, 6, 1, 1};
 byte external_MIDI_channel[NUM_BUTTONS+NUM_SLIDERS] = {1, 1, 1, 1, 1, 1, 1, 1};

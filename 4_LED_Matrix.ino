@@ -147,7 +147,7 @@ class Display {
       scrolled = LOW;
       clear_concat();
       text_len = text_len;
-      if (text_len < 8) index = (32 - (text_len * 4)) / 2;
+      if (text_len < 8) index = (36 - (text_len * 4)) / 2;
       for (int i = 0; i < text_len ; i++) {
         for (byte j = 0; j < 3; j++) {
           if (index < MAX_CONCAT) concat_text[index] = font_5x7[text[i]][j];
