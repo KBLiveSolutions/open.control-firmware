@@ -42,7 +42,7 @@ void onSerialSysEx(const uint8_t *data) { //, unsigned _length, bool complete) {
             disp.text[i] = 13;
           }
           disp.build_text(5);
-          clear_leds();
+            init_LEDS();
         }
         break;
 

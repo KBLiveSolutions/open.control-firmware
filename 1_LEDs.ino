@@ -181,7 +181,7 @@ class Led {
         }
       }
     }
-    
+
     void show_color() {
       leds[num] = CRGB(r * 2, g * 2, b * 2);
       FastLED.show();
@@ -196,11 +196,11 @@ class Led {
 
     void toggle_led(byte beat) {
       if (state == 14) {
-        if (beat==2 || beat==4) show_color();
+        if (beat == 2 || beat == 4) show_color();
         else led_off();
       }
       if (state == 15) {
-        if (beat==1 || beat==4) show_color();
+        if (beat == 1 || beat == 4) show_color();
         else led_off();
       }
     }
@@ -213,6 +213,17 @@ class Led {
 
 Led l[NUM_LEDS] = {Led(0), Led(1), Led(2), Led(3), Led(4), Led(5)};;
 
+void init_LEDS() {
+  byte init_led_color_red[NUM_LEDS] = {80, 0, 17, 100, 124, 90};
+  byte init_led_color_green[NUM_LEDS] = {0, 78, 23, 100, 49, 0};
+  byte init_led_color_blue[NUM_LEDS] = {127, 46, 80, 0, 0, 12};
+  for ( byte i = 0; i < NUM_LEDS; i += 1) {
+    l[i].r = init_led_color_red[i];
+    l[i].g = init_led_color_green[i];
+    l[i].b = init_led_color_blue[i];
+    l[i].show_color();
+  }
+}
 
 void clear_leds() {
   for (byte i = 0; i < NUM_LEDS; ++i) {

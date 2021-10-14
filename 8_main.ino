@@ -7,7 +7,7 @@ byte ana = 0;
 midiEventPacket_t rx;
 
 void set_led_matrix() {
-   DDRC |= 1 << DDC7; // toggle_Col
+  DDRC |= 1 << DDC7; // toggle_Col
   DDRD |= 1 << DDD7; // toggle_Row
   DDRF |= 1 << DDF4;
   DDRD |= 1 << DDD6;
@@ -22,20 +22,12 @@ void set_LEDs() {
   pinMode(LED_PIN, OUTPUT);
   FastLED.addLeds<LED_TYPE , LED_PIN, GRB>(leds, NUM_LEDS); // for GRB LEDs
   FastLED.setBrightness(BRIGHTNESS);
-  byte init_led_color_red[NUM_LEDS] = {80, 0, 17, 100, 124, 90};
-  byte init_led_color_green[NUM_LEDS] = {0, 78, 23, 100, 49, 0};
-  byte init_led_color_blue[NUM_LEDS] = {127, 46, 80, 0, 0, 12};
-  for ( byte i = 0; i < NUM_LEDS; i += 1) {
-    l[i].r = init_led_color_red[i];
-    l[i].g = init_led_color_green[i];
-    l[i].b = init_led_color_blue[i];
-    l[i].led_update(LOW);
-  }
+  init_LEDS();
 }
+
 void clear_EEPROM() {
   for (byte i = 0; i < 350; i++)
     EEPROM.write(i, 255);
-
 }
 
 void set_EEPROM() {
@@ -128,17 +120,18 @@ void setup() {
   set_led_matrix();
   disp.build_text(5);
   pinMode(toggle_Col, OUTPUT);
- // pinMode(toggle_Row, OUTPUT);
+  // pinMode(toggle_Row, OUTPUT);
   Timer3.initialize(50);
   Timer3.attachInterrupt(tick_matrix); // blinkLED to run every 0.15 seconds
   Serial1.begin(31250);
 }
 
-void tick_matrix(){
+void tick_matrix() {
   if (ticker == 33) ticker = 0;
-    disp.show_char(ticker);
-    ticker++;
+  disp.show_char(ticker);
+  ticker++;
 }
+
 void loop() {
   rx = MidiUSB.read();
   if (rx.header) onUSBMIDIPacketReceived(rx.header, rx.byte1, rx.byte2, rx.byte3);
@@ -152,9 +145,9 @@ void loop() {
 
   if (but == NUM_BUTTONS) but = 0;
   if (ana == 2) ana = 0;
-  
+
   if (millis() - _now > scrolling_speed / 2) {
     disp.inc_scroll();
-      _now = millis();
+    _now = millis();
   }
 }
