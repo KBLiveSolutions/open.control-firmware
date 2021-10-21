@@ -1,9 +1,13 @@
 // #include <Arduino.h> 
+
+#include <Arduino.h>
+#include <Adafruit_TinyUSB.h>
+#include <MIDI.h>
 #include <Bounce2.h>
 #include <EEPROM.h>
 #include <ResponsiveAnalogRead.h>
 #include <FastLED.h>
-#include <MIDIUSB.h>
+#include <Adafruit_NeoPixel.h>
 #include <TimerThree.h>
 
 byte const NUM_LAYOUT = 3;
