@@ -1,5 +1,9 @@
 ![open.control](https://github.com/KBLiveSolutions/open.control/blob/main/assets/images/logo_big.png)
 
+
+# NOTE: the current version of opencontrol is based on an Atmega32U4 chip, but we are moving it to a more powerful RP2040, so the code and circuit are subject to change
+
+
 # open·control firmware
 
 ### [Download the content of this Repository](https://github.com/KBLiveSolutions/open.control-firmware/archive/refs/heads/main.zip)
