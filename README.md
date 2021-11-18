@@ -8,9 +8,9 @@ Version 1.0
 
 ## To install :
 
-Connect open.control while holding button 1.
-A flash drive named RPI-RP2 will appear.
-Drag and drop the file firmware_pico1.2.ino.uf2 inside it. The board will reboot with the new firmware installed.
+Connect open.control while holding button 1. A flash drive named RPI-RP2 will appear.  
+Drag and drop the file firmware_pico1.2.ino.uf2 inside it.  
+The board will reboot with the new firmware installed.  
 
 ## To modify:
 - Install the Arduino IDE
