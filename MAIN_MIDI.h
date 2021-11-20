@@ -1,5 +1,3 @@
-
-
 byte _clock = 0;
 bool USB_clock;
 byte USB_thru = 0;
@@ -25,6 +23,7 @@ void sendMessage(byte type, byte control, byte value, byte channel) {
       break;
   }
 }
+
 
 void clock_received(){
   _clock += 1;

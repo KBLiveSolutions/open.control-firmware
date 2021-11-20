@@ -1,4 +1,3 @@
-
 #include <Adafruit_NeoPixel.h>
 #define PIN        8
 #define NUMPIXELS 6 // Popular NeoPixel ring size

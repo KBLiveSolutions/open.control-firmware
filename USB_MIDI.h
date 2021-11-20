@@ -1,38 +1,13 @@
-
 RPI_PICO_Timer ITimer2(2);
 #define TIMER_INTERVAL_2 1000000
 bool show_page_number = LOW;
+
 bool TimerHandler_2(struct repeating_timer *t) {
   ITimer2.stopTimer();
   show_page_number = LOW;
   disp.build_data_text();
   return true;
 }
-
-
-
-// 0 -> 5 : Buttons Short
-// 6 -> 11 : Buttons Long
-// 12 -> 17 : Leds
-// 18 -> 21 : Analog
-
-// prefix = {240, 122, 29, 1, 19};
-// data[5] :
-//           69 -> receive Live acknowledgement
-//           70 -> receive Short Buttons Data
-//           71 -> receive Long Buttons Data
-//           72 -> receive Led Data
-//           73 -> receive Analog Data
-//           74 -> receive Dump Request
-//           75 -> receive Layout change
-//           76 -> receive Disconnect
-//           77 -> receive Display data
-//           80 -> enable/disable metronome blinking
-//           81 -> enable session box
-//           82 -> receive Display text
-//           99 -> raw RGB Data
-
-// =============   MIDI RECEIVE =================
 
 
 
@@ -63,6 +38,33 @@ void check_custom_led() {
     }
   }
 }
+
+
+
+
+// 0 -> 5 : Buttons Short
+// 6 -> 11 : Buttons Long
+// 12 -> 17 : Leds
+// 18 -> 21 : Analog
+
+// prefix = {240, 122, 29, 1, 19};
+// data[5] :
+//           69 -> receive Live acknowledgement
+//           70 -> receive Short Buttons Data
+//           71 -> receive Long Buttons Data
+//           72 -> receive Led Data
+//           73 -> receive Analog Data
+//           74 -> receive Dump Request
+//           75 -> receive Layout change
+//           76 -> receive Disconnect
+//           77 -> receive Display data
+//           80 -> enable/disable metronome blinking
+//           81 -> enable session box
+//           82 -> receive Display text
+//           99 -> raw RGB Data
+
+// =============   MIDI RECEIVE =================
+
 
 void onUSBControlChange(byte channel, byte control, byte value) {
   check_led(channel, control, value, LOW);
@@ -112,9 +114,10 @@ void onUSBSysEx(uint8_t *data, unsigned int _length) {
           byte sysexArrayBoot[] = { 240, 122, 29, 1, 19, 2, 247 };  //String that answers to the MIDI Remote Script for Ableton Live
           sendUSBSysEx(sysexArrayBoot, 7);
           for (byte i = 0; i < 10; i++) {  // sending the options
-            byte option = EEPROM.read(300 + i);
-            if (option != 255) {
-              byte sysex_array[8] = { 240, 122, 29, 1, 19, 30 + i, option, 247 };
+            byte option_value = EEPROM.read(300 + i);
+            if (option_value != 255) {
+              byte _option = 30 + i;
+              byte sysex_array[8] = { 240, 122, 29, 1, 19, _option, option_value, 247 };
               sendUSBSysEx(sysex_array, 8);
             }
           }
@@ -343,10 +346,16 @@ void onUSBSysEx(uint8_t *data, unsigned int _length) {
           byte num = data[7];
           byte control = data[8];
           byte channel = data[10];
+          if (num < 2){
           r[num].control[rcvd_layout] = control;
           r[num].channel[rcvd_layout] = channel;
+          }
+          else{
+          r[num-2].control_hold[rcvd_layout] = control;
+          r[num-2].channel_hold[rcvd_layout] = channel;
+          }
           eeprom_store(rcvd_layout, num + 90, control);
-          eeprom_store(rcvd_layout, num + 92, channel);
+          eeprom_store(rcvd_layout, num + 94, channel);
           {
             byte acknowledgment_array[7] = { 240, 122, 29, 1, 19, 78, 247 };
             sendUSBSysEx(acknowledgment_array, 7);
@@ -362,8 +371,8 @@ void onUSBSysEx(uint8_t *data, unsigned int _length) {
           byte channel = data[10];
           a[num].control[rcvd_layout] = control;
           a[num].channel[rcvd_layout] = channel;
-          eeprom_store(rcvd_layout, num + 94, control);
-          eeprom_store(rcvd_layout, num + 96, channel);
+          eeprom_store(rcvd_layout, num + 98, control);
+          eeprom_store(rcvd_layout, num + 100, channel);
           {
             byte acknowledgment_array[7] = { 240, 122, 29, 1, 19, 78, 247 };
             sendUSBSysEx(acknowledgment_array, 7);
@@ -376,7 +385,7 @@ void onUSBSysEx(uint8_t *data, unsigned int _length) {
           byte rcvd_layout = data[6];
           byte layout = data[8];
           disp.layout[rcvd_layout] = layout;
-          eeprom_store(rcvd_layout, 98, layout);
+          eeprom_store(rcvd_layout, 102, layout);
           {
             byte acknowledgment_array[7] = { 240, 122, 29, 1, 19, 78, 247 };
             sendUSBSysEx(acknowledgment_array, 7);
@@ -437,7 +446,7 @@ void onUSBSysEx(uint8_t *data, unsigned int _length) {
 
       case 30:
         {  // Options
-          raw_eeprom_store(300 + data[6], data[7]);
+          raw_eeprom_store(350 + data[6], data[7]);
           byte data_array[9] = { 240, 122, 29, 1, 19, 30, data[6], data[7], 247};
           sendUSBSysEx(data_array, 9);
         }

@@ -6,7 +6,8 @@
 Adafruit_USBD_MIDI usb_midi;
 MIDI_CREATE_INSTANCE(Adafruit_USBD_MIDI, usb_midi, USB_MIDI);
 MIDI_CREATE_INSTANCE(HardwareSerial, Serial1, SERIAL_MIDI);
-#define TIMER_INTERVAL_3 100
+
+#define TIMER_INTERVAL_3 300
 #define NUM_BUTTONS 8
 #define NUM_LEDS 6
 #define NUM_SLIDERS 2
@@ -18,7 +19,7 @@ byte current_layout = 0;
 unsigned long scrolling_speed = 200;
 long unsigned _now = millis();
 int i = 0;
-int options[NUM_OPTIONS];
+byte options[NUM_OPTIONS];
 
 #include "DISPLAY.h"
 #include "LEDS.h"
@@ -117,19 +118,19 @@ void setup_EEPROM() {
     }
 
     for (byte i = 0; i < NUM_SLIDERS; i++) {
-      _byte = EEPROM.read(layout_num * 100 + 94 + i);
+      _byte = EEPROM.read(layout_num * 100 + 98 + i);
       if (_byte != 255) a[i].control[layout_num] = _byte;
-      _byte = EEPROM.read(layout_num * 100 + 96 + i);
+      _byte = EEPROM.read(layout_num * 100 + 100 + i);
       if (_byte != 255) a[i].channel[layout_num] = _byte;
     }
-    _byte = EEPROM.read(layout_num * 100 + 98);
+    _byte = EEPROM.read(layout_num * 100 + 102);
     if (_byte != 255) disp.layout[layout_num] = _byte;
   }
 
 
   for (byte i = 0; i < 2; i++) {
     // Retrieve Options and send them to Live
-    _byte = EEPROM.read(300 + i);
+    _byte = EEPROM.read(350 + i);
     if (_byte != 255) {
       byte sysex_array[9] = { 240, 122, 29, 1, 19, 30, i, _byte, 247 };
       sendUSBSysEx(sysex_array, 9);
