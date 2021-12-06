@@ -1,11 +1,11 @@
-byte _clock = 0;
+
 bool USB_clock;
 byte USB_thru = 0;
 byte SERIAL_thru = 0;
 
-byte external_MIDI_control[NUM_BUTTONS+NUM_SLIDERS] = {1, 2, 3, 4, 5, 6, 1, 1};
-byte external_MIDI_channel[NUM_BUTTONS+NUM_SLIDERS] = {1, 1, 1, 1, 1, 1, 1, 1};
-byte external_MIDI_type[NUM_BUTTONS+NUM_SLIDERS] = {0, 0, 0, 0, 0, 0, 0, 0};
+byte external_MIDI_control[NUM_BUTTONS + NUM_SLIDERS] = {1, 2, 3, 4, 5, 6, 1, 1};
+byte external_MIDI_channel[NUM_BUTTONS + NUM_SLIDERS] = {1, 1, 1, 1, 1, 1, 1, 1};
+byte external_MIDI_type[NUM_BUTTONS + NUM_SLIDERS] = {0, 0, 0, 0, 0, 0, 0, 0};
 
 
 void sendMessage(byte type, byte control, byte value, byte channel) {
@@ -25,28 +25,26 @@ void sendMessage(byte type, byte control, byte value, byte channel) {
 }
 
 
-void clock_received(){
-  _clock += 1;
-  byte modulo_clock = _clock % 6;
-  if (modulo_clock == 0) {
-  byte div_clock = int(_clock/6);
-    for (byte i = 0; i < NUM_LEDS; i++) {
-      if (l[i].led_channel[current_layout] == 14 || l[i].led_channel[current_layout] == 15) l[i].toggle_led(div_clock);
-    }
-    if (_clock == 24) _clock = 0;
+void clock_received() {
+  for (byte i = 0; i < NUM_LEDS; i++) {
+   l[i].toggle_led(_clock);
   }
+  _clock += 1;
+  if (_clock == 4) _clock = 0;
 }
 
-void clock_start(){
+void clock_start() {
   _clock = 0;
   for (byte i = 0; i < NUM_LEDS; i++) {
     l[i].show_color();
+    delay(1);
   }
 }
 
-void clock_stop(){
+void clock_stop() {
   for (byte i = 0; i < NUM_LEDS; i++) {
     l[i].show_color();
+    delay(1);
   }
 }
 

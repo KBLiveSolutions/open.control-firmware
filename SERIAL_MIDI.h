@@ -109,7 +109,7 @@ void onSerialSysEx(uint8_t *data, unsigned int _length) {
             disp.clear_text();
             current_layout = data[6];
             disp.build_page_text(data[6] + 17);
-            ITimer2.restartTimer();
+            Show_Page_Timer.restartTimer();
             check_custom_led();
           }
           break;

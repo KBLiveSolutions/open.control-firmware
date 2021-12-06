@@ -1,9 +1,9 @@
-RPI_PICO_Timer ITimer2(2);
-#define TIMER_INTERVAL_2 1000000
+RPI_PICO_Timer Show_Page_Timer(2);
+#define Show_Page_TIMER_INTERVAL 1000000
 bool show_page_number = LOW;
 
-bool TimerHandler_2(struct repeating_timer *t) {
-  ITimer2.stopTimer();
+bool Show_Page_Timer_Handler(struct repeating_timer *t) {
+  Show_Page_Timer.stopTimer();
   show_page_number = LOW;
   disp.build_data_text();
   return true;
@@ -99,7 +99,6 @@ void sendUSBSysEx(const uint8_t *data, int _size) {
 void onUSBSysEx(uint8_t *data, unsigned int _length) {
   if (data[1] == 122 && data[2] == 29 && data[3] == 1 && data[4] == 19) {
     switch (data[5]) {
-
         // Connect Disconnect
 
       case 1:
@@ -202,6 +201,13 @@ void onUSBSysEx(uint8_t *data, unsigned int _length) {
               sysex_to_send[9] = r[i].channel[layout_number];
               sendUSBSysEx(sysex_to_send, 12);
               delay(2);
+              // Retrieve and send sliders values
+              sysex_to_send[5] = 15;
+              sysex_to_send[7] = i;
+              sysex_to_send[8] = r[i].control_hold[layout_number];
+              sysex_to_send[9] = r[i].channel_hold[layout_number];
+              sendUSBSysEx(sysex_to_send, 12);
+              delay(2);
             }
 
             // Retrieve and send display values
@@ -266,7 +272,7 @@ void onUSBSysEx(uint8_t *data, unsigned int _length) {
           byte num = data[7];
           byte snap = data[8];
           b[num].snap[rcvd_layout] = snap;
-          eeprom_store(rcvd_layout, num + 24, snap);
+          eeprom_store(rcvd_layout, num + 32, snap);
         }
         break;
 
@@ -462,7 +468,7 @@ void onUSBSysEx(uint8_t *data, unsigned int _length) {
           current_layout = data[6];
           show_page_number = HIGH;
           disp.build_page_text(data[6] + 17);
-          ITimer2.restartTimer();
+          Show_Page_Timer.restartTimer();
           check_custom_led();
         }
         break;

@@ -1,10 +1,10 @@
 #include "RPi_Pico_TimerInterrupt.h"
 
-RPI_PICO_Timer ITimer1(1);
+RPI_PICO_Timer Display_Timer(1);
 
 int _tick = 0;
 
-#define TIMER_INTERVAL 27
+#define Display_TIMER_INTERVAL 27
 int matrix_brightness = 150;
 
 
@@ -229,8 +229,8 @@ public:
 
 Display disp;
 
-bool TimerHandler(struct repeating_timer *t)
-{
+bool Display_Timer_Handler(struct repeating_timer *t)
+{ 
   _tick ++;
   if (_tick == 34) _tick = 0;
   disp.show_char(_tick);

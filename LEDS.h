@@ -171,11 +171,11 @@ class Led {
     int led_type[NUM_LAYOUT] = {0, 0, 0};
     int led_control[NUM_LAYOUT] = {0, 0, 0};
     int led_channel[NUM_LAYOUT] = {16, 16, 16};
-    void set_color(byte color, byte _state) {
+    void set_color(byte color, byte channel) {
       r = color_index[color][0];
       g = color_index[color][1];
       b = color_index[color][2];
-      led_channel[current_layout] = _state;
+      led_channel[current_layout] = channel;
       if (color == 0) {
           r = 0;
           g = 0;
@@ -190,7 +190,6 @@ class Led {
     }
 
     void show_color() {
-      pixels.setBrightness(BRIGHTNESS);
       pixels.setPixelColor(num, r * 2, g * 2, b * 2);
       pixels.show();
     }
@@ -203,23 +202,20 @@ class Led {
     }
 
     void toggle_led(byte beat) {
-      if (led_channel[current_layout] == 14) {
-        if (beat == 2 || beat == 4) show_color();
-        else led_off();
-      }
-      if (led_channel[current_layout] == 15) {
-        if (beat == 1 || beat == 4) show_color();
-        else led_off();
-      }
+      if (led_channel[current_layout] == 14 && (beat == 1 || beat == 3)) led_off();
+      if (led_channel[current_layout] == 15 && (beat == 1 || beat == 2)) led_off();
+      else show_color();
+      delay(1);
     }
 
     void led_off() {
       pixels.setPixelColor(num, pixels.Color(0, 0, 0));
-      pixels.show();;
+      pixels.show();
     }
 };
 
 Led l[NUM_LEDS] = {Led(0), Led(1), Led(2), Led(3), Led(4), Led(5)};
+byte _clock = 0;
 
 void init_LEDS() {
   byte init_led_color_red[NUM_LEDS] = {80, 0, 17, 100, 124, 90};

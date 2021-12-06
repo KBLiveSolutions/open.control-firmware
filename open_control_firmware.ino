@@ -7,7 +7,7 @@ Adafruit_USBD_MIDI usb_midi;
 MIDI_CREATE_INSTANCE(Adafruit_USBD_MIDI, usb_midi, USB_MIDI);
 MIDI_CREATE_INSTANCE(HardwareSerial, Serial1, SERIAL_MIDI);
 
-#define TIMER_INTERVAL_3 300
+#define User_Input_TIMER_INTERVAL 300
 #define NUM_BUTTONS 8
 #define NUM_LEDS 6
 #define NUM_SLIDERS 2
@@ -21,15 +21,15 @@ long unsigned _now = millis();
 int i = 0;
 byte options[NUM_OPTIONS];
 
-#include "DISPLAY.h"
 #include "LEDS.h"
+#include "DISPLAY.h"
 #include "MAIN_MIDI.h"
 #include "BUTTONS.h"
 #include "ANALOG.h"
 #include "ROTARY.h"
 #include "USB_MIDI.h"
 #include "SERIAL_MIDI.h"
-RPI_PICO_Timer ITimer3(3);
+RPI_PICO_Timer User_Input_Timer(3);
 
 
 void setup_MIDI() {
@@ -66,7 +66,7 @@ void setup_display() {
   }
 
   disp.build_data_text();
-  ITimer1.attachInterruptInterval(TIMER_INTERVAL, TimerHandler);
+  Display_Timer.attachInterruptInterval(Display_TIMER_INTERVAL, Display_Timer_Handler);
 }
 
 void setup_EEPROM() {
@@ -114,7 +114,11 @@ void setup_EEPROM() {
       _byte = EEPROM.read(layout_num * 100 + 90 + i);
       if (_byte != 255) r[i].control[layout_num] = _byte;
       _byte = EEPROM.read(layout_num * 100 + 92 + i);
+      if (_byte != 255) r[i].control_hold[layout_num] = _byte;
+      _byte = EEPROM.read(layout_num * 100 + 94 + i);
       if (_byte != 255) r[i].channel[layout_num] = _byte;
+      _byte = EEPROM.read(layout_num * 100 + 96 + i);
+      if (_byte != 255) r[i].channel_hold[layout_num] = _byte;
     }
 
     for (byte i = 0; i < NUM_SLIDERS; i++) {
@@ -152,6 +156,7 @@ void setup_EEPROM() {
   if (_byte != 255) matrix_brightness = _byte;  // Retrieve Display Brightness
   _byte = EEPROM.read(341);
   if (_byte != 255) BRIGHTNESS = _byte;  // Retrieve LED Brightness
+  pixels.setBrightness(BRIGHTNESS);
   _byte = EEPROM.read(342);
   if (_byte != 255) USB_thru = _byte;  // Retrieve Display Brightness
   _byte = EEPROM.read(343);
@@ -167,9 +172,9 @@ void clear_EEPROM() {
 }
 
 
-bool TimerHandler_3(struct repeating_timer *t) {
+bool Check_User_Input(struct repeating_timer *t) {
   b[i].update_button();
-  a[i % 2].check_pot();
+  // a[i % 2].check_pot();
   r[i % 2].update_rotary();
   i++;
   if (i == NUM_BUTTONS) i = 0;
@@ -186,8 +191,8 @@ void setup() {
   setup_display();
   setup_MIDI();
   setup_EEPROM();
-  ITimer2.attachInterruptInterval(TIMER_INTERVAL_2, TimerHandler_2);
-  ITimer3.attachInterruptInterval(TIMER_INTERVAL_3, TimerHandler_3);
+  Show_Page_Timer.attachInterruptInterval(Show_Page_TIMER_INTERVAL, Show_Page_Timer_Handler);
+  User_Input_Timer.attachInterruptInterval(User_Input_TIMER_INTERVAL, Check_User_Input);
 }
 
 
