@@ -1,10 +1,6 @@
-#include "RPi_Pico_TimerInterrupt.h"
-
 RPI_PICO_Timer Display_Timer(1);
-
+#define Display_TIMER_INTERVAL 17
 int _tick = 0;
-
-#define Display_TIMER_INTERVAL 27
 int matrix_brightness = 150;
 
 
@@ -159,15 +155,15 @@ public:
       data_text[i] = 0;
     }
   }
-
-  void build_page_text(int page_num){
-    page_text[5] = page_num;
-    build_text(6, page_text);
+/*
+  void build_direct_text(int _text_len){
+    delay(1);
+    build_text(_text_len, direct_text);
   }
 
   void  build_data_text(){
      build_text(text_len, data_text);
-  }
+  }*/
   
   void build_text(int _text_len, int *text) {
     index = 0;
@@ -229,10 +225,18 @@ public:
 
 Display disp;
 
+
 bool Display_Timer_Handler(struct repeating_timer *t)
 { 
   _tick ++;
   if (_tick == 34) _tick = 0;
   disp.show_char(_tick);
   return true;
+}
+
+void Display_Handler()
+{ 
+  _tick ++;
+  if (_tick == 34) _tick = 0;
+  disp.show_char(_tick);
 }

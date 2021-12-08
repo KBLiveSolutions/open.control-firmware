@@ -1,6 +1,7 @@
 
 #include <Arduino.h>
 #include <Adafruit_TinyUSB.h>
+#include "RPi_Pico_TimerInterrupt.h"
 #include <EEPROM.h>
 #include <MIDI.h>
 Adafruit_USBD_MIDI usb_midi;
@@ -20,6 +21,7 @@ unsigned long scrolling_speed = 200;
 long unsigned _now = millis();
 int i = 0;
 byte options[NUM_OPTIONS];
+byte _clock = 0;
 
 #include "LEDS.h"
 #include "DISPLAY.h"
@@ -29,7 +31,7 @@ byte options[NUM_OPTIONS];
 #include "ROTARY.h"
 #include "USB_MIDI.h"
 #include "SERIAL_MIDI.h"
-RPI_PICO_Timer User_Input_Timer(3);
+// RPI_PICO_Timer User_Input_Timer(3);
 
 
 void setup_MIDI() {
@@ -47,6 +49,7 @@ void setup_MIDI() {
   USB_MIDI.setHandleClock(clock_received);
   USB_MIDI.setHandleStop(clock_stop);
   USB_MIDI.setHandleStart(clock_start);
+  USB_MIDI.setHandleContinue(clock_continue);
 
   SERIAL_MIDI.begin(MIDI_CHANNEL_OMNI);
   SERIAL_MIDI.turnThruOff();
@@ -54,6 +57,9 @@ void setup_MIDI() {
   SERIAL_MIDI.setHandleSystemExclusive(onSerialSysEx);
   SERIAL_MIDI.setHandleNoteOn(onSerialNoteOn);
   SERIAL_MIDI.setHandleNoteOff(onSerialNoteOn);
+  SERIAL_MIDI.setHandleClock(clock_received);
+  SERIAL_MIDI.setHandleStop(clock_stop);
+  SERIAL_MIDI.setHandleStart(clock_start);
 }
 
 void setup_display() {
@@ -64,9 +70,8 @@ void setup_display() {
   for (int i = 0; i < 6; i++) {
     pinMode(row_pins[i], OUTPUT);
   }
-
-  disp.build_data_text();
-  Display_Timer.attachInterruptInterval(Display_TIMER_INTERVAL, Display_Timer_Handler);
+  int init_text[5] = { 79, 80, 105, 67, 79 };
+  disp.build_text(5, init_text);
 }
 
 void setup_EEPROM() {
@@ -158,9 +163,9 @@ void setup_EEPROM() {
   if (_byte != 255) BRIGHTNESS = _byte;  // Retrieve LED Brightness
   pixels.setBrightness(BRIGHTNESS);
   _byte = EEPROM.read(342);
-  if (_byte != 255) USB_thru = _byte;  // Retrieve Display Brightness
+  if (_byte != 255) USB_thru = _byte;  // Retrieve USB_thru
   _byte = EEPROM.read(343);
-  if (_byte != 255) SERIAL_thru = _byte;  // Retrieve LED Brightness
+  if (_byte != 255) SERIAL_thru = _byte;  // Retrieve SERIAL_thru
 }
 
 void clear_EEPROM() {
@@ -171,7 +176,7 @@ void clear_EEPROM() {
   }
 }
 
-
+/*
 bool Check_User_Input(struct repeating_timer *t) {
   b[i].update_button();
   // a[i % 2].check_pot();
@@ -183,20 +188,45 @@ bool Check_User_Input(struct repeating_timer *t) {
     _now = millis();
   }
   return true;
-}
+}*/
 
+void Check_User_Input() {
+  b[i].update_button();
+  // a[i % 2].check_pot();
+  r[i % 2].update_rotary();
+  i++;
+  if (i == NUM_BUTTONS) i = 0;
+}
 void setup() {
   // clear_EEPROM();
-  init_LEDS();
-  setup_display();
-  setup_MIDI();
   setup_EEPROM();
+  init_LEDS();
+  setup_MIDI();
+  setup_display();
+ // User_Input_Timer.attachInterruptInterval(User_Input_TIMER_INTERVAL, Check_User_Input);
   Show_Page_Timer.attachInterruptInterval(Show_Page_TIMER_INTERVAL, Show_Page_Timer_Handler);
-  User_Input_Timer.attachInterruptInterval(User_Input_TIMER_INTERVAL, Check_User_Input);
 }
 
+void setup1(){
+ // Display_Timer.attachInterruptInterval(Display_TIMER_INTERVAL, Display_Timer_Handler);
+}
 
 void loop() {
   USB_MIDI.read();
   SERIAL_MIDI.read();
+  Check_User_Input();
+}
+
+long unsigned _now_micro = micros();
+void loop1(){
+  if ( (micros()-_now_micro) > 27){
+  Display_Handler();
+    _now_micro =  micros();
+  }
+  if (millis() - _now > scrolling_speed / 2) {
+    disp.inc_scroll();
+    _now = millis();
+  }
+  // Display_Handler();
+ // delayMicroseconds(13);
 }

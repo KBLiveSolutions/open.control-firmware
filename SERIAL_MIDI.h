@@ -36,8 +36,8 @@ void onExternalMessageReceived(byte channel, byte control, byte value, byte type
   }
   for (byte i = 0; i < NUM_SLIDERS; i++) {
     is_Control = HIGH;
-    if (channel == external_MIDI_channel[i+NUM_BUTTONS] && control == external_MIDI_control[i+NUM_BUTTONS]) {
-       sendUSBControlChange(a[i].control[current_layout], value, a[i].channel[current_layout]);
+    if (channel == external_MIDI_channel[i + NUM_BUTTONS] && control == external_MIDI_control[i + NUM_BUTTONS]) {
+      sendUSBControlChange(a[i].control[current_layout], value, a[i].channel[current_layout]);
     }
   }
   if (!is_Control) {
@@ -49,7 +49,7 @@ void onExternalMessageReceived(byte channel, byte control, byte value, byte type
 
 void onSerialControlChange(byte channel, byte control, byte value) {
   // if MIDI In is used as Remote
-  if (channel == 16) {
+  if (channel > 13) {
     check_led(channel, control, value, HIGH);
     check_rotary(channel, control, value);
   }
@@ -68,93 +68,94 @@ void onSerialNoteOn(byte channel, byte note, byte vel) {
 
 void onSerialSysEx(uint8_t *data, unsigned int _length) {
   if (data[1] == 122 && data[2] == 29 && data[3] == 1 && data[4] == 19) {
-    if (data[5] < 30) {
-      switch (data[5]) {
+    switch (data[5]) {
 
-        // Connect Disconnect
+      // Connect Disconnect
 
-        case 1: {    // Handshake with Editor
-            byte sysexArrayBoot[] = {240, 122, 29, 1, 19, 68, 1, 0, 247};  //String that answers to the MIDI Remote Script for Ableton Live
-            sendSerialSysEx(sysexArrayBoot, 9);
+      case 1: {    // Handshake with Editor
+          byte sysexArrayBoot[] = {240, 122, 29, 1, 19, 68, 1, 0, 247};  //String that answers to the MIDI Remote Script for Ableton Live
+          sendSerialSysEx(sysexArrayBoot, 9);
+        }
+        break;
+
+      case 2: {    // Handshake with Live
+          byte sysexArrayBoot[] = {240, 122, 29, 1, 19, 2, 247};  //String that answers to the MIDI Remote Script for Ableton Live
+          sendSerialSysEx(sysexArrayBoot, 7);
+          /*     for (byte i = 0; i < 10; i++) { // sending the options
+                 byte option = EEPROM.read(300 + i);
+                 if (option != 255) {
+                   byte sysex_array[8] = {240, 122, 29, 1, 19, 30 + i, option, 247};
+                   sendSerialSysEx(sysex_array, 8);
+                 }
+               }*/
+        }
+        break;
+/*
+      case 3: {   // Disconnect message received
+          for (byte i = 0; i < 5 ; i++) {
+            disconnect_text[i] = 13;
           }
-          break;
+          disp.build_text(5, disconnect_text);
+          init_LEDS();
+        }
+        break;
 
-        case 2: {    // Handshake with Live
-            byte sysexArrayBoot[] = {240, 122, 29, 1, 19, 2, 247};  //String that answers to the MIDI Remote Script for Ableton Live
-            sendSerialSysEx(sysexArrayBoot, 7);
-            /*     for (byte i = 0; i < 10; i++) { // sending the options
-                   byte option = EEPROM.read(300 + i);
-                   if (option != 255) {
-                     byte sysex_array[8] = {240, 122, 29, 1, 19, 30 + i, option, 247};
-                     sendSerialSysEx(sysex_array, 8);
-                   }
-                 }*/
-          }
-          break;
+        // receive Data from Live
 
-        case 3: {   // Disconnect message received
-            for (byte i = 0; i < 5 ; i++) {
-              disp.data_text[i] = 13;
+      case 40:
+        { // Layout Value received
+          clear_leds();
+          disp.clear_text();
+          current_layout = data[6];
+          show_page_number = HIGH;
+          disp.build_page_text(data[6] + 17);
+          Show_Page_Timer.restartTimer();
+          check_custom_led();
+        }
+        break;
+
+      case 51:
+        { // Text received
+          byte text_len = data[7];  //min(MAX_CHAR, data[7]);
+          if (data[6] == disp.layout[current_layout]) {
+            disp.text_len = data[7];
+            for (byte i = 0; i < text_len; i++) {
+              disp.data_text[i] = data[8 + i];
             }
-            disp.text_len = 5;
-            disp.build_data_text();
-            init_LEDS();
           }
-          break;
+          if (!show_page_number) disp.build_data_text();
+        }
+        break;
 
+      case 52:
+        { // Receive Looper number from Live
+          byte note = data[6];
+          byte type = data[7];
+          byte chnl = data[8];
 
-        case 20: {   // Layout Value received
-            clear_leds();
-            show_page_number = HIGH;
-            disp.clear_text();
-            current_layout = data[6];
-            disp.build_page_text(data[6] + 17);
-            Show_Page_Timer.restartTimer();
-            check_custom_led();
-          }
-          break;
-
-        case 21: {   // Text received
-            byte text_len = data[7]; //min(MAX_CHAR, data[7]);
-            if (data[6] == disp.layout[current_layout]) {
-              disp.text_len = data[7];
-              for (byte i = 0; i < text_len ; i++) {
-                disp.data_text[i] =  data[8 + i];
+          for (byte layout = 0; layout < NUM_LAYOUT; layout++) {
+            for (byte i = 0; i < NUM_BUTTONS; i++) {
+              if (b[i].short_ch[layout] == chnl && b[i].short_type[layout] == type) {
+                b[i].short_control[layout] = note;
+              }
+              if (b[i].long_ch[layout] == chnl && b[i].long_type[layout] == type) {
+                b[i].long_control[layout] = note;
               }
             }
-            if (!show_page_number) disp.build_data_text();
           }
-          break;
+        }
+        break;
 
-        case 22: {   // Receive Looper number from Live
-            byte note = data[6];
-            byte type = data[7];
-            byte chnl = data[8];
+      case 53:
+        { // Receive Looper Clear All
+          byte note = data[6];
+          byte type = data[7];
+          byte chnl = data[8];
+          sendUSBNote(note, 127, chnl);
+          sendUSBNote(note, 0, chnl);
+        }
+        break;*/
 
-            for (byte layout = 0; layout < NUM_LAYOUT; layout++) {
-              for (byte i = 0; i < NUM_BUTTONS; i++) {
-                if (b[i].short_ch[layout] == chnl && b[i].short_type[layout] == type) {
-                  b[i].short_control[layout] = note;
-                }
-                if (b[i].long_ch[layout] == chnl && b[i].long_type[layout] == type) {
-                  b[i].long_control[layout] = note;
-                }
-              }
-            }
-          }
-          break;
-
-        case 23: {   // Receive Looper Clear All
-            byte note = data[6];
-            byte type = data[7];
-            byte chnl = data[8];
-            sendUSBNote(note, 127, chnl);
-            sendUSBNote(note, 0, chnl);
-          }
-          break;
-
-
-      }
     }
   }
 }

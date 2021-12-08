@@ -1,11 +1,11 @@
-RPI_PICO_Timer Show_Page_Timer(2);
+RPI_PICO_Timer Show_Page_Timer(0);
 #define Show_Page_TIMER_INTERVAL 1000000
 bool show_page_number = LOW;
 
 bool Show_Page_Timer_Handler(struct repeating_timer *t) {
   Show_Page_Timer.stopTimer();
   show_page_number = LOW;
-  disp.build_data_text();
+  disp.build_text(disp.text_len, disp.data_text);
   return true;
 }
 
@@ -16,6 +16,7 @@ void check_led(byte channel, byte control, byte value, bool serial) {
     if (l[i].led_control[current_layout] == control) {
       l[i].set_color(value, channel);
       l[i].led_update(b[i].held);
+      l[i].serial = serial;
     }
     if (!serial) delay(1);
   }
@@ -123,13 +124,9 @@ void onUSBSysEx(uint8_t *data, unsigned int _length) {
         }
         break;
 
-      case 3:
-        {  // Disconnect message received
-          for (byte i = 0; i < 5; i++) {
-            disp.data_text[i] = 13;
-          }
-          disp.text_len = 5;
-          disp.build_data_text();
+      case 3: {   // Disconnect message received
+          int disconnect_text[5] = { 13, 13, 13, 13, 13};
+          disp.build_text(5, disconnect_text);
           init_LEDS();
         }
         break;
@@ -140,7 +137,7 @@ void onUSBSysEx(uint8_t *data, unsigned int _length) {
       case 4:
         {  // Dump: Receiving {240, 122, 29, 1, 19, 4} from the Editor send each control 1 by 1 {240, 122, 29, 1, 19, 77, Layout, Control, CC Number, Channel, Type, 247}
           byte sysex_to_send[12] = { 240, 122, 29, 1, 19, 4, 0, 0, 0, 0, 0, 247 };
-          byte sysex_to_send_options[9] = { 240, 122, 29, 1, 19, 17, 0, 0, 247 };
+        //  byte sysex_to_send_options[9] = { 240, 122, 29, 1, 19, 17, 0, 0, 247 };
           for (byte layout_number = 0; layout_number < NUM_LAYOUT; layout_number++) {
             sysex_to_send[6] = layout_number;
             // sysex_to_send_snap[6] = layout_number;
@@ -202,8 +199,8 @@ void onUSBSysEx(uint8_t *data, unsigned int _length) {
               sendUSBSysEx(sysex_to_send, 12);
               delay(2);
               // Retrieve and send sliders values
-              sysex_to_send[5] = 15;
-              sysex_to_send[7] = i;
+              sysex_to_send[5] = 14;
+              sysex_to_send[7] = i+2;
               sysex_to_send[8] = r[i].control_hold[layout_number];
               sysex_to_send[9] = r[i].channel_hold[layout_number];
               sendUSBSysEx(sysex_to_send, 12);
@@ -233,9 +230,10 @@ void onUSBSysEx(uint8_t *data, unsigned int _length) {
 
           // Retrieve and send Options
           for (byte i = 0; i < 2; i++) {
-            sysex_to_send_options[6] = i;
-            sysex_to_send_options[7] = options[i];
-            sendUSBSysEx(sysex_to_send_options, 9);
+            sysex_to_send[5] = 17;
+            sysex_to_send[6] = i;
+            sysex_to_send[7] = options[i];
+            sendUSBSysEx(sysex_to_send, 12);
             delay(2);
           }
 
@@ -452,9 +450,11 @@ void onUSBSysEx(uint8_t *data, unsigned int _length) {
 
       case 30:
         {  // Options
+          options[data[6]] =  data[7];
           raw_eeprom_store(350 + data[6], data[7]);
           byte data_array[9] = { 240, 122, 29, 1, 19, 30, data[6], data[7], 247};
           sendUSBSysEx(data_array, 9);
+         // sendSerialSysEx(data_array, 9);
         }
         break;
 
@@ -467,7 +467,8 @@ void onUSBSysEx(uint8_t *data, unsigned int _length) {
           disp.clear_text();
           current_layout = data[6];
           show_page_number = HIGH;
-          disp.build_page_text(data[6] + 17);
+          int page_text[MAX_CHAR] = { 48, 65, 71, 69, 0, (current_layout+17) };
+          disp.build_text(6, page_text);
           Show_Page_Timer.restartTimer();
           check_custom_led();
         }
@@ -482,7 +483,7 @@ void onUSBSysEx(uint8_t *data, unsigned int _length) {
               disp.data_text[i] = data[8 + i];
             }
           }
-          if (!show_page_number) disp.build_data_text();
+          if (!show_page_number) disp.build_text(disp.text_len, disp.data_text);
         }
         break;
 
@@ -514,6 +515,20 @@ void onUSBSysEx(uint8_t *data, unsigned int _length) {
           sendUSBNote(note, 0, chnl);
         }
         break;
+              
+       case 54:
+        {  // Direct Text received
+          int temp_text[MAX_CHAR];
+          byte text_len = data[7];    
+            for (byte i = 0; i < text_len; i++) {
+              temp_text[i] = data[8 + i];
+            }
+          disp.build_text(text_len, temp_text);
+          show_page_number = HIGH;
+          Show_Page_Timer.restartTimer();
+        }
+        break;
+
     }
   }
 }

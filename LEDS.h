@@ -3,6 +3,7 @@
 #define NUMPIXELS 6 // Popular NeoPixel ring size
 int BRIGHTNESS = 64;
 Adafruit_NeoPixel pixels(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ400);
+int fade_resolution = 24 ;
 
 //////////////////////////////
 // LEDs
@@ -168,6 +169,7 @@ class Led {
     byte b = 0;
     bool toggle_fast = HIGH;
     bool toggle_slow = HIGH;
+    bool serial = LOW;
     int led_type[NUM_LAYOUT] = {0, 0, 0};
     int led_control[NUM_LAYOUT] = {0, 0, 0};
     int led_channel[NUM_LAYOUT] = {16, 16, 16};
@@ -194,6 +196,12 @@ class Led {
       pixels.show();
     }
 
+    void show_color_fade(int fade_amount) {
+      USB_MIDI.sendControlChange(2, fade_amount, 2);
+      pixels.setPixelColor(num, int(r * 2 * fade_amount/fade_resolution), int(g * 2 * fade_amount/fade_resolution), int(b * 2 * fade_amount/fade_resolution));
+      pixels.show();
+    }
+
     void led_update(bool button_state) {
      if (!button_state) {
         show_color();
@@ -201,21 +209,31 @@ class Led {
      else show_white();
     }
 
-    void toggle_led(byte beat) {
-      if (led_channel[current_layout] == 14 && (beat == 1 || beat == 3)) led_off();
-      if (led_channel[current_layout] == 15 && (beat == 1 || beat == 2)) led_off();
+    void fade_slow(int beat) {
+     // if (beat == 1 || beat == 2) led_off();
+       show_color_fade(max(fade_resolution-beat, 0));
+    //  delay(1);
+    } 
+
+    void blink_slow(int beat) {
+      if (beat == 2 || beat == 3) led_off();
+      else  show_color();
+      delay(1);
+    } 
+
+     void blink_fast(byte beat) {
+      if (beat == 1 || beat == 3 ) led_off();
       else show_color();
       delay(1);
-    }
+    } 
 
-    void led_off() {
-      pixels.setPixelColor(num, pixels.Color(0, 0, 0));
+   void led_off() {
+      pixels.setPixelColor(num, 0, 0, 0);
       pixels.show();
     }
 };
-
+  
 Led l[NUM_LEDS] = {Led(0), Led(1), Led(2), Led(3), Led(4), Led(5)};
-byte _clock = 0;
 
 void init_LEDS() {
   byte init_led_color_red[NUM_LEDS] = {80, 0, 17, 100, 124, 90};
