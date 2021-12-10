@@ -448,6 +448,14 @@ void onUSBSysEx(uint8_t *data, unsigned int _length) {
         }
         break;
 
+      case 27:
+        {  // Sets Pedal Min and Max
+          int pedal_number = data[7];
+          int min_or_max = data[8];
+          a[pedal_number]._calibrate(pedal_number, min_or_max);
+        }
+        break;
+
       case 30:
         {  // Options
           options[data[6]] =  data[7];

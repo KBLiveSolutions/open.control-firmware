@@ -4,10 +4,14 @@
 #include "RPi_Pico_TimerInterrupt.h"
 #include <EEPROM.h>
 #include <MIDI.h>
+#include "Hysteresis.h"
 Adafruit_USBD_MIDI usb_midi;
 MIDI_CREATE_INSTANCE(Adafruit_USBD_MIDI, usb_midi, USB_MIDI);
 MIDI_CREATE_INSTANCE(HardwareSerial, Serial1, SERIAL_MIDI);
 
+
+
+RPI_PICO_Timer User_Input_Timer(2);
 #define User_Input_TIMER_INTERVAL 300
 #define NUM_BUTTONS 8
 #define NUM_LEDS 6
@@ -22,6 +26,7 @@ long unsigned _now = millis();
 int i = 0;
 byte options[NUM_OPTIONS];
 byte _clock = 0;
+bool pedal_state[NUM_SLIDERS] = {LOW, LOW};
 
 #include "LEDS.h"
 #include "DISPLAY.h"
@@ -166,6 +171,13 @@ void setup_EEPROM() {
   if (_byte != 255) USB_thru = _byte;  // Retrieve USB_thru
   _byte = EEPROM.read(343);
   if (_byte != 255) SERIAL_thru = _byte;  // Retrieve SERIAL_thru
+
+  for (byte i = 0; i < NUM_SLIDERS; i++) {
+    _byte = EEPROM.read(360 + i);
+    if (_byte != 255) a[i].pedal_min = _byte;
+    _byte = EEPROM.read(362 + i);
+    if (_byte != 255) a[i].pedal_max = _byte;
+  }
 }
 
 void clear_EEPROM() {
@@ -176,57 +188,54 @@ void clear_EEPROM() {
   }
 }
 
-/*
-bool Check_User_Input(struct repeating_timer *t) {
+
+bool User_Input_Timer_Handler(struct repeating_timer *t) {
   b[i].update_button();
-  // a[i % 2].check_pot();
+  if (i < NUM_SLIDERS) a[i].check_pot();
   r[i % 2].update_rotary();
   i++;
   if (i == NUM_BUTTONS) i = 0;
-  if (millis() - _now > scrolling_speed / 2) {
-    disp.inc_scroll();
-    _now = millis();
-  }
   return true;
-}*/
+}
 
 void Check_User_Input() {
   b[i].update_button();
-  // a[i % 2].check_pot();
+  a[i % 2].check_pot();
   r[i % 2].update_rotary();
   i++;
   if (i == NUM_BUTTONS) i = 0;
+  delay(1);
 }
+
 void setup() {
   // clear_EEPROM();
   setup_EEPROM();
   init_LEDS();
   setup_MIDI();
   setup_display();
- // User_Input_Timer.attachInterruptInterval(User_Input_TIMER_INTERVAL, Check_User_Input);
+  User_Input_Timer.attachInterruptInterval(User_Input_TIMER_INTERVAL, User_Input_Timer_Handler);
   Show_Page_Timer.attachInterruptInterval(Show_Page_TIMER_INTERVAL, Show_Page_Timer_Handler);
+  Analog_Hysteresis_Timer.attachInterruptInterval(Analog_Hysteresis_Timer_TIMER_INTERVAL, Analog_Hysteresis_Timer_Handler);
 }
 
-void setup1(){
- // Display_Timer.attachInterruptInterval(Display_TIMER_INTERVAL, Display_Timer_Handler);
+void setup1() {
+  // Display_Timer.attachInterruptInterval(Display_TIMER_INTERVAL, Display_Timer_Handler);
 }
 
 void loop() {
   USB_MIDI.read();
   SERIAL_MIDI.read();
-  Check_User_Input();
+  // Check_User_Input();
 }
 
 long unsigned _now_micro = micros();
-void loop1(){
-  if ( (micros()-_now_micro) > 27){
-  Display_Handler();
+void loop1() {
+  if ( (micros() - _now_micro) > 27) {
+    Display_Handler();
     _now_micro =  micros();
   }
   if (millis() - _now > scrolling_speed / 2) {
     disp.inc_scroll();
     _now = millis();
   }
-  // Display_Handler();
- // delayMicroseconds(13);
 }

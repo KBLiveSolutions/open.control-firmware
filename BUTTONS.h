@@ -60,57 +60,60 @@ class Button {
     }
 
     void check_button() {
-      if (snap[current_layout]) { // if snap is ON, only short press messages are sent
-        if (short_toggle[current_layout] == 1) {
-          if (buttonState && !held) {
-            held = HIGH;
-            if (toggle_state[current_layout] == 0) toggle_state[current_layout] = 127;
-            else toggle_state[current_layout] = 0;
-            sendMessage(short_type[current_layout], short_control[current_layout], toggle_state[current_layout], short_ch[current_layout]);
-            if (num < NUM_LEDS) l[num].led_update(HIGH);
+//      if (!pedal_state[0] && ! pedal_state[1]) { // avoids sending switch messages because of analog interferences
+        if (snap[current_layout]) { // if snap is ON, only short press messages are sent
+          if (short_toggle[current_layout] == 1) {
+            if (buttonState && !held) {
+              held = HIGH;
+              if (toggle_state[current_layout] == 0) toggle_state[current_layout] = 127;
+              else toggle_state[current_layout] = 0;
+              sendMessage(short_type[current_layout], short_control[current_layout], toggle_state[current_layout], short_ch[current_layout]);
+              if (num < NUM_LEDS) l[num].led_update(HIGH);
+            }
+            if (!buttonState && held) {
+              held = LOW;
+              if (num < NUM_LEDS) l[num].led_update(LOW);
+            }
           }
-          if (!buttonState && held) {
-            held = LOW;
-            if (num < NUM_LEDS) l[num].led_update(LOW);
+          else {
+            if (buttonState && !held) {
+              held = HIGH;
+              sendMessage(short_type[current_layout], short_control[current_layout], 127, short_ch[current_layout]);
+              if (num < NUM_LEDS) l[num].led_update(HIGH);
+            }
+            if (!buttonState && held) {
+              held = LOW;
+              sendMessage(short_type[current_layout], short_control[current_layout], 0, short_ch[current_layout]);
+              if (num < NUM_LEDS) l[num].led_update(LOW);
+            }
           }
         }
         else {
-          if (buttonState && !held) {
+          if (buttonState && !held && !latch) {
+            time_pressed = millis();
             held = HIGH;
-            sendMessage(short_type[current_layout], short_control[current_layout], 127, short_ch[current_layout]);
             if (num < NUM_LEDS) l[num].led_update(HIGH);
           }
-          if (!buttonState && held) {
-            held = LOW;
-            sendMessage(short_type[current_layout], short_control[current_layout], 0, short_ch[current_layout]);
+          if (held && !buttonState) {
             if (num < NUM_LEDS) l[num].led_update(LOW);
+            if (!latch) {
+              sendMessage(short_type[current_layout], short_control[current_layout], 127, short_ch[current_layout]);
+              sendMessage(short_type[current_layout], short_control[current_layout], 0, short_ch[current_layout]);
+            }
+            held = LOW;
+            latch = LOW;
+          }
+          if (held && ((millis() - time_pressed) > hold_button_time) && !latch ) {
+            if (num < NUM_LEDS) l[num].led_update(LOW);
+            if (num < 6) {
+              sendMessage(long_type[current_layout], long_control[current_layout], 127, long_ch[current_layout]);
+              sendMessage(long_type[current_layout], long_control[current_layout], 0, long_ch[current_layout]);
+            }
+            latch = HIGH;
           }
         }
-      }
-      else {
-        if (buttonState && !held && !latch) {
-          time_pressed = millis();
-          held = HIGH;
-          if (num < NUM_LEDS) l[num].led_update(HIGH);
-        }
-        if (held && !buttonState) {
-          if (num < NUM_LEDS) l[num].led_update(LOW);
-          if (!latch) {
-            sendMessage(short_type[current_layout], short_control[current_layout], 127, short_ch[current_layout]);
-            sendMessage(short_type[current_layout], short_control[current_layout], 0, short_ch[current_layout]);
-          }
-          held = LOW;
-          latch = LOW;
-        }
-        if (held && ((millis() - time_pressed) > hold_button_time) && !latch ) {
-          if (num < NUM_LEDS) l[num].led_update(LOW);
-          if (num < 6) {
-          sendMessage(long_type[current_layout], long_control[current_layout], 127, long_ch[current_layout]);
-          sendMessage(long_type[current_layout], long_control[current_layout], 0, long_ch[current_layout]);
-          }
-          latch = HIGH;
-        }
-      }
+
+   //   }
     }
     void set_button_on() {
       buttonState = HIGH;
