@@ -2,23 +2,24 @@
 // BUTTONS
 //////////////////////////////
 
-int hold_button_time = 800;
-const int b_pins[NUM_BUTTONS] = {2, 3, 4, 5, 6, 7, 13, 14};
+int hold_button_time = 800;   // Time in ms for Long Press
+unsigned long debounceDelay = 10; // buttons deouncing time
+const int b_pins[NUM_BUTTONS] = {2, 3, 4, 5, 6, 7, 13, 14};    // Pin number for buttons 1 to 8 (buttons 7 & 8 are the Encoders buttons)
 
+// Factory default button values for Pages 1 to 3. Overriden as soon as they are changed with the Web Editor
 byte default_short[3][NUM_BUTTONS] = {{13, 1, 2, 11, 14, 15, 56, 57}, {22, 24, 26, 25, 18, 19, 56, 57}, {1, 6, 7, 75, 9, 8, 56, 57}};
 byte default_long [3][NUM_BUTTONS] = {{16, 17, 3, 43, 4, 40, 56, 57}, {23, 27, 55, 20, 21, 5, 56, 57}, {100, 103, 4, 42, 10, 41, 56, 57}};
 
-unsigned long debounceDelay = 10;
 
 class Button {
   private:
-    unsigned long time_pressed = 0;
+    unsigned long time_pressed = 0; // Timer for the Long Press detection
   public:
-    byte num;
+    byte num;   // Button Number
     Button(byte number) {
       num = number;
       pinMode(b_pins[num], INPUT_PULLUP);
-      for (int i = 0 ; i < NUM_LAYOUT ; i++) {
+      for (int i = 0 ; i < NUM_LAYOUT ; i++) {  // Sets button default values
         short_control[i] = default_short[i][num];
         long_control[i] = default_long[i][num];
       }
@@ -42,78 +43,74 @@ class Button {
     unsigned long lastDebounceTime = 0;  // the last time the output pin was toggled
 
     void update_button() {
-      if (!ext_MIDI_On) {
-        // buttonState  = !digitalRead(b_pins[num]);
-        int reading  = !digitalRead(b_pins[num]);
+      if (!ext_MIDI_On) { // if External MIDI button is pressed, button is disabled to avoid double press
+
+        int reading  = !digitalRead(b_pins[num]); // reads button pin state
+        // Debounces button
         if (reading != lastButtonState) {
           lastDebounceTime = millis();
         }
-
         if ((millis() - lastDebounceTime) > debounceDelay) {
-          if (reading != buttonState) {
-            buttonState = reading;
-          }
+          if (reading != buttonState) buttonState = reading;
         }
         lastButtonState = reading;
       }
+      // When debounced, proceeds
       check_button();
     }
 
     void check_button() {
-//      if (!pedal_state[0] && ! pedal_state[1]) { // avoids sending switch messages because of analog interferences
-        if (snap[current_layout]) { // if snap is ON, only short press messages are sent
-          if (short_toggle[current_layout] == 1) {
-            if (buttonState && !held) {
-              held = HIGH;
-              if (toggle_state[current_layout] == 0) toggle_state[current_layout] = 127;
-              else toggle_state[current_layout] = 0;
-              sendMessage(short_type[current_layout], short_control[current_layout], toggle_state[current_layout], short_ch[current_layout]);
-              if (num < NUM_LEDS) l[num].led_update(HIGH);
-            }
-            if (!buttonState && held) {
-              held = LOW;
-              if (num < NUM_LEDS) l[num].led_update(LOW);
-            }
+      if (snap[current_layout]) { // if snap is ON, only short press messages are sent
+        if (short_toggle[current_layout] == 1) {
+          if (buttonState && !held) {
+            held = HIGH;
+            if (toggle_state[current_layout] == 0) toggle_state[current_layout] = 127;
+            else toggle_state[current_layout] = 0;
+            sendMessage(short_type[current_layout], short_control[current_layout], toggle_state[current_layout], short_ch[current_layout]);
+            if (num < NUM_LEDS) l[num].led_update(HIGH);
           }
-          else {
-            if (buttonState && !held) {
-              held = HIGH;
-              sendMessage(short_type[current_layout], short_control[current_layout], 127, short_ch[current_layout]);
-              if (num < NUM_LEDS) l[num].led_update(HIGH);
-            }
-            if (!buttonState && held) {
-              held = LOW;
-              sendMessage(short_type[current_layout], short_control[current_layout], 0, short_ch[current_layout]);
-              if (num < NUM_LEDS) l[num].led_update(LOW);
-            }
+          if (!buttonState && held) {
+            held = LOW;
+            if (num < NUM_LEDS) l[num].led_update(LOW);
           }
         }
         else {
-          if (buttonState && !held && !latch) {
-            time_pressed = millis();
+          if (buttonState && !held) {
             held = HIGH;
+            sendMessage(short_type[current_layout], short_control[current_layout], 127, short_ch[current_layout]);
             if (num < NUM_LEDS) l[num].led_update(HIGH);
           }
-          if (held && !buttonState) {
-            if (num < NUM_LEDS) l[num].led_update(LOW);
-            if (!latch) {
-              sendMessage(short_type[current_layout], short_control[current_layout], 127, short_ch[current_layout]);
-              sendMessage(short_type[current_layout], short_control[current_layout], 0, short_ch[current_layout]);
-            }
+          if (!buttonState && held) {
             held = LOW;
-            latch = LOW;
-          }
-          if (held && ((millis() - time_pressed) > hold_button_time) && !latch ) {
+            sendMessage(short_type[current_layout], short_control[current_layout], 0, short_ch[current_layout]);
             if (num < NUM_LEDS) l[num].led_update(LOW);
-            if (num < 6) {
-              sendMessage(long_type[current_layout], long_control[current_layout], 127, long_ch[current_layout]);
-              sendMessage(long_type[current_layout], long_control[current_layout], 0, long_ch[current_layout]);
-            }
-            latch = HIGH;
           }
         }
-
-   //   }
+      }
+      else {
+        if (buttonState && !held && !latch) {
+          time_pressed = millis();
+          held = HIGH;
+          if (num < NUM_LEDS) l[num].led_update(HIGH);
+        }
+        if (held && !buttonState) {
+          if (num < NUM_LEDS) l[num].led_update(LOW);
+          if (!latch) {
+            sendMessage(short_type[current_layout], short_control[current_layout], 127, short_ch[current_layout]);
+            sendMessage(short_type[current_layout], short_control[current_layout], 0, short_ch[current_layout]);
+          }
+          held = LOW;
+          latch = LOW;
+        }
+        if (held && ((millis() - time_pressed) > hold_button_time) && !latch ) {
+          if (num < NUM_LEDS) l[num].led_update(LOW);
+          if (num < 6) {
+            sendMessage(long_type[current_layout], long_control[current_layout], 127, long_ch[current_layout]);
+            sendMessage(long_type[current_layout], long_control[current_layout], 0, long_ch[current_layout]);
+          }
+          latch = HIGH;
+        }
+      }
     }
     void set_button_on() {
       buttonState = HIGH;

@@ -48,13 +48,12 @@ void onExternalMessageReceived(byte channel, byte control, byte value, byte type
 }
 
 void onSerialControlChange(byte channel, byte control, byte value) {
-  // if MIDI In is used as Remote
-  if (channel > 13) {
+  if (channel > 13) { // if MIDI In is used as Remote
     check_led(channel, control, value, HIGH);
     check_rotary(channel, control, value);
+    check_slider(channel, control, value);
   }
-  // if MIDI In is used as External MIDI
-  else onExternalMessageReceived(channel, control, value, 1);
+  else onExternalMessageReceived(channel, control, value, 1); // if MIDI In is used as External MIDI
   // if (USB_thru > 0) USB_MIDI.sendControlChange(control, value, channel);
   // if (SERIAL_thru > 0) SERIAL_MIDI.sendControlChange(control, value, channel);
 }
@@ -70,46 +69,32 @@ void onSerialSysEx(uint8_t *data, unsigned int _length) {
   if (data[1] == 122 && data[2] == 29 && data[3] == 1 && data[4] == 19) {
     switch (data[5]) {
 
-      // Connect Disconnect
-
-      case 1: {    // Handshake with Editor
-          byte sysexArrayBoot[] = {240, 122, 29, 1, 19, 68, 1, 0, 247};  //String that answers to the MIDI Remote Script for Ableton Live
-          sendSerialSysEx(sysexArrayBoot, 9);
-        }
-        break;
-
-      case 2: {    // Handshake with Live
-          byte sysexArrayBoot[] = {240, 122, 29, 1, 19, 2, 247};  //String that answers to the MIDI Remote Script for Ableton Live
+      case 2:
+        { // Handshake with Live
+          byte sysexArrayBoot[] = { 240, 122, 29, 1, 19, 2, 247 };  //String that answers to the MIDI Remote Script for Ableton Live
           sendSerialSysEx(sysexArrayBoot, 7);
-          /*     for (byte i = 0; i < 10; i++) { // sending the options
-                 byte option = EEPROM.read(300 + i);
-                 if (option != 255) {
-                   byte sysex_array[8] = {240, 122, 29, 1, 19, 30 + i, option, 247};
-                   sendSerialSysEx(sysex_array, 8);
-                 }
-               }*/
         }
         break;
-/*
+
       case 3: {   // Disconnect message received
-          for (byte i = 0; i < 5 ; i++) {
-            disconnect_text[i] = 13;
-          }
+          int disconnect_text[5] = { 13, 13, 13, 13, 13};
           disp.build_text(5, disconnect_text);
           init_LEDS();
         }
         break;
 
-        // receive Data from Live
+
+      // receive Data from Live
 
       case 40:
         { // Layout Value received
           clear_leds();
           disp.clear_text();
           current_layout = data[6];
-          show_page_number = HIGH;
-          disp.build_page_text(data[6] + 17);
-          Show_Page_Timer.restartTimer();
+          int page_text[MAX_CHAR] = { 48, 65, 71, 69, 0, (current_layout + 17) };
+          disp.build_text(6, page_text);
+          showing_page = HIGH;
+          _now_page = millis();
           check_custom_led();
         }
         break;
@@ -123,7 +108,19 @@ void onSerialSysEx(uint8_t *data, unsigned int _length) {
               disp.data_text[i] = data[8 + i];
             }
           }
-          if (!show_page_number) disp.build_data_text();
+          if (!showing_page) disp.build_text(disp.text_len, disp.data_text);
+        }
+        break;
+
+      case 54:
+        { // Direct Text received
+          byte text_len = data[7];
+          for (byte i = 0; i < text_len; i++) {
+            disp.temp_text[i] = data[8 + i];
+          }
+          disp.build_text(text_len, disp.temp_text);
+          showing_page = HIGH;
+          _now_page = millis();
         }
         break;
 
@@ -151,11 +148,10 @@ void onSerialSysEx(uint8_t *data, unsigned int _length) {
           byte note = data[6];
           byte type = data[7];
           byte chnl = data[8];
-          sendUSBNote(note, 127, chnl);
-          sendUSBNote(note, 0, chnl);
+          sendSerialNote(note, 127, chnl);
+          sendSerialNote(note, 0, chnl);
         }
-        break;*/
-
+        break;
     }
   }
 }

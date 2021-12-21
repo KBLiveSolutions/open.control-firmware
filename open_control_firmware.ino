@@ -4,15 +4,14 @@
 #include "RPi_Pico_TimerInterrupt.h"
 #include <EEPROM.h>
 #include <MIDI.h>
-#include "Hysteresis.h"
 Adafruit_USBD_MIDI usb_midi;
 MIDI_CREATE_INSTANCE(Adafruit_USBD_MIDI, usb_midi, USB_MIDI);
 MIDI_CREATE_INSTANCE(HardwareSerial, Serial1, SERIAL_MIDI);
 
 
+ bool   showing_page = LOW;
+long unsigned _now_page = millis();
 
-RPI_PICO_Timer User_Input_Timer(2);
-#define User_Input_TIMER_INTERVAL 300
 #define NUM_BUTTONS 8
 #define NUM_LEDS 6
 #define NUM_SLIDERS 2
@@ -64,7 +63,8 @@ void setup_MIDI() {
   SERIAL_MIDI.setHandleNoteOff(onSerialNoteOn);
   SERIAL_MIDI.setHandleClock(clock_received);
   SERIAL_MIDI.setHandleStop(clock_stop);
-  SERIAL_MIDI.setHandleStart(clock_start);
+  USB_MIDI.setHandleStart(clock_start_serial);
+  USB_MIDI.setHandleContinue(clock_continue);
 }
 
 void setup_display() {
@@ -189,22 +189,12 @@ void clear_EEPROM() {
 }
 
 
-bool User_Input_Timer_Handler(struct repeating_timer *t) {
+void Check_User_Input() {
   b[i].update_button();
   if (i < NUM_SLIDERS) a[i].check_pot();
   r[i % 2].update_rotary();
   i++;
   if (i == NUM_BUTTONS) i = 0;
-  return true;
-}
-
-void Check_User_Input() {
-  b[i].update_button();
-  a[i % 2].check_pot();
-  r[i % 2].update_rotary();
-  i++;
-  if (i == NUM_BUTTONS) i = 0;
-  delay(1);
 }
 
 void setup() {
@@ -213,29 +203,32 @@ void setup() {
   init_LEDS();
   setup_MIDI();
   setup_display();
-  User_Input_Timer.attachInterruptInterval(User_Input_TIMER_INTERVAL, User_Input_Timer_Handler);
-  Show_Page_Timer.attachInterruptInterval(Show_Page_TIMER_INTERVAL, Show_Page_Timer_Handler);
-  Analog_Hysteresis_Timer.attachInterruptInterval(Analog_Hysteresis_Timer_TIMER_INTERVAL, Analog_Hysteresis_Timer_Handler);
 }
 
-void setup1() {
-  // Display_Timer.attachInterruptInterval(Display_TIMER_INTERVAL, Display_Timer_Handler);
-}
 
 void loop() {
   USB_MIDI.read();
   SERIAL_MIDI.read();
-  // Check_User_Input();
+  Check_User_Input();
+ // delay(2);
 }
 
 long unsigned _now_micro = micros();
+
 void loop1() {
-  if ( (micros() - _now_micro) > 27) {
+  
+  if ( (micros() - _now_micro) > 17) {
     Display_Handler();
     _now_micro =  micros();
   }
+  // delayMicroseconds(40);
   if (millis() - _now > scrolling_speed / 2) {
     disp.inc_scroll();
     _now = millis();
+  }
+
+  if (showing_page && millis()-_now_page > 800) {
+    showing_page = LOW;
+    disp.build_text(disp.text_len, disp.data_text);
   }
 }

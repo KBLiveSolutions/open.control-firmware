@@ -30,32 +30,31 @@ class Rotary {
     byte channel_hold[NUM_LAYOUT];
     int _value = 64;
     int _value_hold = 64;
+    bool enc_state = LOW;
     long unsigned _now = millis();
 
     void update_rotary()
     {
       encoder.tick();
       int newPos = encoder.getPosition();
-
       if (pos != newPos) {
-        if(b[6+number].held) {
+        enc_state = HIGH;
+        if (b[6 + number].held) {
           int newValue = _value_hold;
-          b[6+number].latch = HIGH;
+          b[6 + number].latch = HIGH;
           if (int(encoder.getDirection()) > 0) {
-              if ((millis() - _now) < 25) _value_hold = _value_hold + 4;
-              else _value_hold++;
-            }
-            else {
-              if ((millis() - _now) < 25) _value_hold = _value_hold - 4;
-              else _value_hold--;
-            }
-            _value_hold = constrain(_value_hold, 0, 127);
-            if (_value_hold != newValue) {
-              USB_MIDI.sendControlChange(control_hold[current_layout], _value_hold, channel_hold[current_layout]);
-              SERIAL_MIDI.sendControlChange(control_hold[current_layout], _value_hold, channel_hold[current_layout]);
-            }
+            if ((millis() - _now) < 25) _value_hold = _value_hold + 4;
+            else _value_hold++;
+          }
+          else {
+            if ((millis() - _now) < 25) _value_hold = _value_hold - 4;
+            else _value_hold--;
+          }
+          _value_hold = constrain(_value_hold, 0, 127);
+          USB_MIDI.sendControlChange(control_hold[current_layout], _value_hold, channel_hold[current_layout]);
+          SERIAL_MIDI.sendControlChange(control_hold[current_layout], _value_hold, channel_hold[current_layout]);
         }
-        
+
         else {
           int newValue = _value;
           if (int(encoder.getDirection()) > 0) {
@@ -67,13 +66,12 @@ class Rotary {
             else _value--;
           }
           _value = constrain(_value, 0, 127);
-          if (_value != newValue) {
-            USB_MIDI.sendControlChange(control[current_layout], _value, channel[current_layout]);
-            SERIAL_MIDI.sendControlChange(control[current_layout], _value, channel[current_layout]);
-          }
+          USB_MIDI.sendControlChange(control[current_layout], _value, channel[current_layout]);
+          SERIAL_MIDI.sendControlChange(control[current_layout], _value, channel[current_layout]);
         }
         pos = newPos;
         _now = millis();
+        enc_state = LOW;
       }
     };
 }

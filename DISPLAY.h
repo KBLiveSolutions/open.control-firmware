@@ -1,5 +1,4 @@
-RPI_PICO_Timer Display_Timer(1);
-#define Display_TIMER_INTERVAL 17
+
 int _tick = 0;
 int matrix_brightness = 150;
 
@@ -145,6 +144,7 @@ public:
   int text_len = 5;
   // int text[MAX_CHAR] = {79, 80, 69, 78, 14, 67, 79, 78, 84, 82, 79, 76};
   // int text[MAX_CHAR] = {96, 97,98, 99, 100, 101, 102, 103, 104};
+  int temp_text[MAX_CHAR];
   int data_text[MAX_CHAR] = { 79, 80, 105, 67, 79 };
   int page_text[MAX_CHAR] = { 48, 65, 71, 69, 0, 79 };
 
@@ -181,6 +181,7 @@ public:
       index++;
     }
   }
+  
   bool scrolled = LOW;
   void inc_scroll() {
     scroller_temp++;
@@ -225,14 +226,6 @@ public:
 
 Display disp;
 
-
-bool Display_Timer_Handler(struct repeating_timer *t)
-{ 
-  _tick ++;
-  if (_tick == 34) _tick = 0;
-  disp.show_char(_tick);
-  return true;
-}
 
 void Display_Handler()
 { 

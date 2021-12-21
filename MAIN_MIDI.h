@@ -23,15 +23,6 @@ void sendMessage(byte type, byte control, byte value, byte channel) {
       break;
   }
 }
-/*
-void clock_received() {
-  for (byte i = 0; i < NUM_LEDS; i++) {
-    if (l[i].led_channel[current_layout] == 15) l[i].blink_slow(_clock);
-    else if (l[i].led_channel[current_layout] == 14) l[i].blink_fast(_clock);
-  }
-  _clock += 1;
-  if (_clock == 4) _clock = 0;
-}*/
 
 // BLINK
 
@@ -71,6 +62,13 @@ void clock_stop() {
   for (byte i = 0; i < NUM_LEDS; i++) {
     l[i].show_color();
     delay(1);
+  }
+}
+
+void clock_start_serial() {
+  _clock = 0;
+  for (byte i = 0; i < NUM_LEDS; i++) {
+    l[i].show_color();
   }
 }
 

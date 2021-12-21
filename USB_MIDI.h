@@ -1,22 +1,8 @@
-RPI_PICO_Timer Show_Page_Timer(0);
-#define Show_Page_TIMER_INTERVAL 1000000
-bool show_page_number = LOW;
-
-bool Show_Page_Timer_Handler(struct repeating_timer *t) {
-  Show_Page_Timer.stopTimer();
-  show_page_number = LOW;
-  disp.build_text(disp.text_len, disp.data_text);
-  return true;
-}
-
-
-
 void check_led(byte channel, byte control, byte value, bool serial) {
   for (int i = 0; i < NUM_LEDS; i++) {
     if (l[i].led_control[current_layout] == control) {
       l[i].set_color(value, channel);
       l[i].led_update(b[i].held);
-      l[i].serial = serial;
     }
     if (!serial) delay(1);
   }
@@ -24,10 +10,13 @@ void check_led(byte channel, byte control, byte value, bool serial) {
 
 void check_rotary(byte channel, byte control, byte value) {
   for (int i = 0; i < NUM_ENCODERS; i++) {
-    if (r[i].control[current_layout] == control) {
-      r[i]._value = value;
-    }
-    // delay(1);
+    if (r[i].control[current_layout] == control && !r[i].enc_state) r[i]._value = value;
+  }
+}
+
+void check_slider(byte channel, byte control, byte value) {
+  for (int i = 0; i < NUM_SLIDERS; i++) {
+    if (a[i].control[current_layout] == control) a[i]._value = value;
   }
 }
 
@@ -39,30 +28,6 @@ void check_custom_led() {
     }
   }
 }
-
-
-
-
-// 0 -> 5 : Buttons Short
-// 6 -> 11 : Buttons Long
-// 12 -> 17 : Leds
-// 18 -> 21 : Analog
-
-// prefix = {240, 122, 29, 1, 19};
-// data[5] :
-//           69 -> receive Live acknowledgement
-//           70 -> receive Short Buttons Data
-//           71 -> receive Long Buttons Data
-//           72 -> receive Led Data
-//           73 -> receive Analog Data
-//           74 -> receive Dump Request
-//           75 -> receive Layout change
-//           76 -> receive Disconnect
-//           77 -> receive Display data
-//           80 -> enable/disable metronome blinking
-//           81 -> enable session box
-//           82 -> receive Display text
-//           99 -> raw RGB Data
 
 // =============   MIDI RECEIVE =================
 
@@ -474,11 +439,14 @@ void onUSBSysEx(uint8_t *data, unsigned int _length) {
           clear_leds();
           disp.clear_text();
           current_layout = data[6];
-          show_page_number = HIGH;
           int page_text[MAX_CHAR] = { 48, 65, 71, 69, 0, (current_layout+17) };
           disp.build_text(6, page_text);
-          Show_Page_Timer.restartTimer();
+          showing_page = HIGH;
+         _now_page = millis();
           check_custom_led();
+          for (int i=0 ; i<NUM_SLIDERS ; i++){
+            a[i].slider_state = LOW;
+          }
         }
         break;
 
@@ -491,7 +459,19 @@ void onUSBSysEx(uint8_t *data, unsigned int _length) {
               disp.data_text[i] = data[8 + i];
             }
           }
-          if (!show_page_number) disp.build_text(disp.text_len, disp.data_text);
+          if (!showing_page) disp.build_text(disp.text_len, disp.data_text);
+        }
+        break;
+              
+       case 54:
+        {  // Direct Text received
+          byte text_len = data[7];    
+            for (byte i = 0; i < text_len; i++) {
+              disp.temp_text[i] = data[8 + i];
+            }
+          disp.build_text(text_len, disp.temp_text);
+          showing_page = HIGH;
+         _now_page = millis();
         }
         break;
 
@@ -523,20 +503,7 @@ void onUSBSysEx(uint8_t *data, unsigned int _length) {
           sendUSBNote(note, 0, chnl);
         }
         break;
-              
-       case 54:
-        {  // Direct Text received
-          int temp_text[MAX_CHAR];
-          byte text_len = data[7];    
-            for (byte i = 0; i < text_len; i++) {
-              temp_text[i] = data[8 + i];
-            }
-          disp.build_text(text_len, temp_text);
-          show_page_number = HIGH;
-          Show_Page_Timer.restartTimer();
-        }
-        break;
-
+        
     }
   }
 }

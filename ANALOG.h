@@ -4,27 +4,14 @@
 //////////////////////////////
 
 
-Hysteresis <uint8_t> pot_hysteresis(5);
-
-RPI_PICO_Timer Analog_Hysteresis_Timer(0);
-#define Analog_Hysteresis_Timer_TIMER_INTERVAL 100000
-
-bool Analog_Hysteresis_Timer_Handler(struct repeating_timer *t) {
-  Analog_Hysteresis_Timer.stopTimer();
-  pedal_state[0] = LOW;
-  pedal_state[1] = LOW;
-  return true;
-}
-
-
-const int a_pins[NUM_SLIDERS] = {27, 26};
+const int a_pins[NUM_SLIDERS] = {A1, A0};
 
 class AnalogPot {
 
   private:
     int number;
     int pin;
-    static const int RunningAverageCount = 20;
+    static const int RunningAverageCount = 30;
     float RunningAverageBuffer[RunningAverageCount];
     int NextRunningAverage;
     byte default_sliders [3][2] = {{73, 59}, {61, 62}, {61, 62}};
@@ -43,44 +30,71 @@ class AnalogPot {
     byte lastValue = 0;
     int pedal_min = 0;
     int pedal_max = 255;
-    int PotPrevVal = 0; // needs global scope
+    int lastReading = 0;
+    int lastMIDIValue = 0;
+    int margin = 1;
+    int _value = 0;
+    bool slider_state = LOW;
+    unsigned long lastDebounceTime = 10;  // the last time the output pin was toggled
+    unsigned long slider_on_time = 0;  // the last time the output pin was toggled
+
+    unsigned long debounceDelayAnalog = 10; // buttons deouncing time
 
     int analog_to_MIDI(int analog_in) {
       int _val = constrain( map(analog_in, pedal_min, pedal_max, 0, 128), 0, 127);
       return _val;
     }
 
-    void check_pot() {
-      if (pedal_state[0] && pedal_state[1]) {
-        pedal_state[0] = LOW;
-        pedal_state[1] = LOW;
-      }
-      
-      int _value = analogRead(pin) / 16;
-      value_MIDI = average(constrain( map(_value, pedal_min, pedal_max, 0, 128), 0, 127));
 
-      if (pedal_state[number] ) {
-        //if((lastValue != value_MIDI)) {
-        if (!pedal_state[other_pedal] && (lastValue != value_MIDI)) {
-          lastValue = value_MIDI;
-          USB_MIDI.sendControlChange(control[current_layout], int(value_MIDI), channel[current_layout]);
-          SERIAL_MIDI.sendControlChange(control[current_layout], int(value_MIDI), channel[current_layout]);
-          Analog_Hysteresis_Timer.restartTimer();
+    void check_pot() {
+      int reading  = average(analogRead(pin) / 16); // reads button pin state
+      // Debounces button
+      if ((millis() - lastDebounceTime) > debounceDelayAnalog) {
+        if (reading > lastValue + margin || reading < lastValue - margin) {
+          lastDebounceTime = millis();
+          if (!slider_state){
+            if (abs(analog_to_MIDI(lastValue) - _value) < 5){
+              slider_state = HIGH;
+              l[4+number].show_green();
+              slider_on_time = millis();
+            }
+          }
+          else {
+            if ((millis() - slider_on_time) > 500) l[4+number].show_color();
+            process_analog(analog_to_MIDI(lastValue));
+          }
+          lastValue = reading;
         }
       }
-      else {
-        if (lastValue + 1 < value_MIDI ||  value_MIDI < lastValue - 1) {
-          lastValue = value_MIDI;
-          pedal_state[number] = HIGH;
-          USB_MIDI.sendControlChange(control[current_layout], int(value_MIDI), channel[current_layout]);
-          SERIAL_MIDI.sendControlChange(control[current_layout], int(value_MIDI), channel[current_layout]);
-        }
+      if (reading != lastReading) {
+       // process_analog(analog_to_MIDI(lastValue));
       }
+        lastReading = reading;
+    }
+
+
+
+    void process_analog(int value_MIDI) {
+      // if (pedal_state[number]) {
+      if ((lastMIDIValue != value_MIDI)) {
+        lastMIDIValue = value_MIDI;
+        USB_MIDI.sendControlChange(control[current_layout], value_MIDI, channel[current_layout]);
+        SERIAL_MIDI.sendControlChange(control[current_layout], value_MIDI, channel[current_layout]);
+      }
+      /*    }
+          else {
+            if (lastValue + 1 < value_MIDI ||  value_MIDI < lastValue - 1) {
+              lastValue = value_MIDI;
+              pedal_state[number] = HIGH;
+              USB_MIDI.sendControlChange(control[current_layout], int(value_MIDI), channel[current_layout]);
+              SERIAL_MIDI.sendControlChange(control[current_layout], int(value_MIDI), channel[current_layout]);
+            }
+          }*/
     }
 
     void _calibrate( int num, int min_or_max) {
       int value = analogRead(pin) / 16;
-      value = constrain(value, 20, 235);
+      value = constrain(value, 0, 255);
       if (min_or_max == 0) {
         pedal_min = value;
         raw_eeprom_store(360 + num, value);

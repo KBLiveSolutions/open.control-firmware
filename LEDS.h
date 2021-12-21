@@ -8,6 +8,7 @@ int fade_resolution = 24 ;
 //////////////////////////////
 // LEDs
 //////////////////////////////
+
 byte const color_index[128][3] = {
   {100, 25, 32}, //0
   {114, 39, 0},
@@ -169,7 +170,6 @@ class Led {
     byte b = 0;
     bool toggle_fast = HIGH;
     bool toggle_slow = HIGH;
-    bool serial = LOW;
     int led_type[NUM_LAYOUT] = {0, 0, 0};
     int led_control[NUM_LAYOUT] = {0, 0, 0};
     int led_channel[NUM_LAYOUT] = {16, 16, 16};
@@ -226,6 +226,11 @@ class Led {
       else show_color();
       delay(1);
     } 
+
+    void show_green() {
+      pixels.setPixelColor(num, 0, 255, 0);
+      pixels.show();
+    }
 
    void led_off() {
       pixels.setPixelColor(num, 0, 0, 0);
