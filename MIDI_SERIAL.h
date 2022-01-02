@@ -25,12 +25,13 @@ void onExternalMessageReceived(byte channel, byte control, byte value, byte type
     if (channel == external_MIDI_channel[i] && control == external_MIDI_control[i]  && type == external_MIDI_type[i]) { // checks if the message received is an externem_MIDI control/channel
       is_Control = HIGH;
       if (value > 0) {
-        b[i].ext_MIDI_On = HIGH;
-        b[i].set_button_on();
+      b[i].tick(HIGH);
+      //  b[i].set_button_on();
       }
       else {
-        b[i].ext_MIDI_On = LOW;
-        b[i].set_button_off();
+      b[i].tick(LOW);
+      //  b[i].ext_MIDI_On = LOW;
+      //  b[i].set_button_off();
       }
     }
   }

@@ -9,9 +9,6 @@ MIDI_CREATE_INSTANCE(Adafruit_USBD_MIDI, usb_midi, USB_MIDI);
 MIDI_CREATE_INSTANCE(HardwareSerial, Serial1, SERIAL_MIDI);
 
 
- bool   showing_page = LOW;
-long unsigned _now_page = millis();
-
 #define NUM_BUTTONS 8
 #define NUM_LEDS 6
 #define NUM_SLIDERS 2
@@ -19,6 +16,12 @@ long unsigned _now_page = millis();
 #define NUM_DISPLAY 1
 #define NUM_LAYOUT 3
 #define NUM_OPTIONS 10
+
+#include <OneButton.h>
+const int b_pins[NUM_BUTTONS] = {2, 3, 4, 5, 6, 7, 13, 14};    // Pin number for buttons 1 to 8 (buttons 7 & 8 are the Encoders buttons)
+
+bool   showing_page = LOW;
+long unsigned _now_page = millis();
 byte current_layout = 0;
 unsigned long scrolling_speed = 200;
 long unsigned _now = millis();
@@ -27,16 +30,25 @@ byte options[NUM_OPTIONS];
 byte _clock = 0;
 bool pedal_state[NUM_SLIDERS] = {LOW, LOW};
 
+#include "TABLES.h"
 #include "LEDS.h"
 #include "DISPLAY.h"
 #include "MAIN_MIDI.h"
 #include "BUTTONS.h"
 #include "ANALOG.h"
 #include "ROTARY.h"
-#include "USB_MIDI.h"
-#include "SERIAL_MIDI.h"
-// RPI_PICO_Timer User_Input_Timer(3);
+#include "MIDI_USB.h"
+#include "MIDI_SERIAL.h"
 
+void setup_Buttons(){
+  for (int i=0; i<NUM_BUTTONS; i++){
+  b[i].attachSimple(simpleClickcallBack);
+  b[i].attachLong(longClickcallBack);
+  b[i].attachDouble(doubleClickcallBack);
+  b[i].setClickTicks(150);
+  b[i].setDebounceTicks(10);
+  }
+}
 
 void setup_MIDI() {
   //   // these two string must be exactly 32 chars long
@@ -81,12 +93,6 @@ void setup_display() {
 
 void setup_EEPROM() {
   EEPROM.begin(512);
-  //   byte default_short[3][NUM_BUTTONS] = {{13, 1, 2, 14, 15, 50, 56, 57}, {22, 24, 26, 18, 19, 50, 56, 57}, {1, 6, 7, 9, 8, 50, 56, 57}};
-  //   byte default_long [3][NUM_BUTTONS] = {{0, 17, 3, 0, 0, 51, 56, 57}, {0, 0, 0, 0, 0, 51, 56, 57}, {0, 0, 0, 0, 0, 51, 56, 57}};
-  //   int default_leds [3][6] = {{13, 1, 2, 14, 15, 50}, {22, 24, 26, 18, 19, 50}, {1, 6, 7, 9, 8, 50}};
-  //   byte default_sliders [3][2] = {{73, 59}, {61, 62}, {61, 62}};
-  //   byte default_rotary [3][2] = {{78, 79}, {78, 79}, {78, 79}};
-  //   byte default_display [3] = {0, 1, 4};
   byte _byte;
   for (byte layout_num = 0; layout_num < NUM_LAYOUT; layout_num++) {
     for (byte i = 0; i < NUM_BUTTONS; i++) {
@@ -100,6 +106,7 @@ void setup_EEPROM() {
       if (_byte != 255) b[i].short_toggle[layout_num] = _byte;
       _byte = EEPROM.read(layout_num * 100 + 32 + i);
       if (_byte != 255) b[i].snap[layout_num] = _byte;
+      
       _byte = EEPROM.read(layout_num * 100 + 40 + i);
       if (_byte != 255) b[i].long_type[layout_num] = _byte;
       _byte = EEPROM.read(layout_num * 100 + 48 + i);
@@ -108,6 +115,15 @@ void setup_EEPROM() {
       if (_byte != 255) b[i].long_ch[layout_num] = _byte;
       _byte = EEPROM.read(layout_num * 100 + 64 + i);
       if (_byte != 255) b[i].long_toggle[layout_num] = _byte;
+      
+      _byte = EEPROM.read(layout_num * 100 + 364 + i);
+      if (_byte != 255) b[i].double_type[layout_num] = _byte;
+      _byte = EEPROM.read(layout_num * 100 + 372 + i);
+      if (_byte != 255) b[i].double_control[layout_num] = _byte;
+      _byte = EEPROM.read(layout_num * 100 + 380 + i);
+      if (_byte != 255) b[i].double_ch[layout_num] = _byte;
+      _byte = EEPROM.read(layout_num * 100 + 388 + i);
+      if (_byte != 255) b[i].double_toggle[layout_num] = _byte;
     }
 
     for (byte i = 0; i < NUM_LEDS; i++) {
@@ -188,10 +204,10 @@ void clear_EEPROM() {
   }
 }
 
-
 void Check_User_Input() {
-  b[i].update_button();
-  if (i < NUM_SLIDERS) a[i].check_pot();
+  b[i].tick();
+  b[i].button_check(!b[i].isIdle());
+ // if (i < NUM_SLIDERS) a[i].check_pot();
   r[i % 2].update_rotary();
   i++;
   if (i == NUM_BUTTONS) i = 0;
@@ -200,6 +216,7 @@ void Check_User_Input() {
 void setup() {
   // clear_EEPROM();
   setup_EEPROM();
+  setup_Buttons();
   init_LEDS();
   setup_MIDI();
   setup_display();
@@ -210,18 +227,15 @@ void loop() {
   USB_MIDI.read();
   SERIAL_MIDI.read();
   Check_User_Input();
- // delay(2);
 }
 
 long unsigned _now_micro = micros();
 
 void loop1() {
-  
   if ( (micros() - _now_micro) > 17) {
     Display_Handler();
     _now_micro =  micros();
   }
-  // delayMicroseconds(40);
   if (millis() - _now > scrolling_speed / 2) {
     disp.inc_scroll();
     _now = millis();

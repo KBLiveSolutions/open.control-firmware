@@ -2,121 +2,109 @@
 // BUTTONS
 //////////////////////////////
 
-int hold_button_time = 800;   // Time in ms for Long Press
-unsigned long debounceDelay = 10; // buttons deouncing time
-const int b_pins[NUM_BUTTONS] = {2, 3, 4, 5, 6, 7, 13, 14};    // Pin number for buttons 1 to 8 (buttons 7 & 8 are the Encoders buttons)
-
-// Factory default button values for Pages 1 to 3. Overriden as soon as they are changed with the Web Editor
-byte default_short[3][NUM_BUTTONS] = {{13, 1, 2, 11, 14, 15, 56, 57}, {22, 24, 26, 25, 18, 19, 56, 57}, {1, 6, 7, 75, 9, 8, 56, 57}};
-byte default_long [3][NUM_BUTTONS] = {{16, 17, 3, 43, 4, 40, 56, 57}, {23, 27, 55, 20, 21, 5, 56, 57}, {100, 103, 4, 42, 10, 41, 56, 57}};
+// const int b_pins[NUM_BUTTONS] = {2, 3, 4, 5, 6, 7, 13, 14};    // Pin number for buttons 1 to 8 (buttons 7 & 8 are the Encoders buttons)
 
 
-class Button {
+class NewButton : public OneButton {
   private:
-    unsigned long time_pressed = 0; // Timer for the Long Press detection
+    int pin;
+    int number;
   public:
-    byte num;   // Button Number
-    Button(byte number) {
-      num = number;
-      pinMode(b_pins[num], INPUT_PULLUP);
+    NewButton(int num, uint8_t pin) : OneButton(pin, true) {
+      pin = pin;
+      number = num;
       for (int i = 0 ; i < NUM_LAYOUT ; i++) {  // Sets button default values
         short_control[i] = default_short[i][num];
         long_control[i] = default_long[i][num];
+        double_control[i] = default_double[i][num];
       }
-    };
+    }
 
+    bool btn_state = LOW;
+    bool btn_latch = LOW;
+    int snap[NUM_LAYOUT] = {0, 0, 0};
     byte short_control[NUM_LAYOUT];
     byte short_ch[NUM_LAYOUT] = {16, 16, 16};
     byte short_type[NUM_LAYOUT] = {1, 1, 1};
+    byte short_toggle[NUM_LAYOUT] = {0, 0, 0};
     byte long_control[NUM_LAYOUT];
     byte long_ch[NUM_LAYOUT] = {16, 16, 16};
     byte long_type[NUM_LAYOUT] = {1, 1, 1};
-    byte snap[NUM_LAYOUT] = {0, 0, 0};
-    byte short_toggle[NUM_LAYOUT] = {0, 0, 0};
     byte long_toggle[NUM_LAYOUT] = {0, 0, 0};
-    bool buttonState = LOW;
-    bool held = LOW;
-    bool latch = LOW;
-    bool ext_MIDI_On = LOW;
-    int toggle_state[NUM_LAYOUT] = {0, 0, 0};
-    bool lastButtonState = LOW;
-    unsigned long lastDebounceTime = 0;  // the last time the output pin was toggled
+    byte double_control[NUM_LAYOUT];
+    byte double_ch[NUM_LAYOUT] = {16, 16, 16};
+    byte double_type[NUM_LAYOUT] = {1, 1, 1};
+    byte double_toggle[NUM_LAYOUT] = {0, 0, 0};
 
-    void update_button() {
-      if (!ext_MIDI_On) { // if External MIDI button is pressed, button is disabled to avoid double press
 
-        int reading  = !digitalRead(b_pins[num]); // reads button pin state
-        // Debounces button
-        if (reading != lastButtonState) {
-          lastDebounceTime = millis();
-        }
-        if ((millis() - lastDebounceTime) > debounceDelay) {
-          if (reading != buttonState) buttonState = reading;
-        }
-        lastButtonState = reading;
+    void button_check(bool state) {
+      if (state && !btn_state) {
+        btn_state = HIGH;
+        change_led(HIGH);
+        if (snap[current_layout]>0) sendMessage(short_type[current_layout], short_control[current_layout], 127, short_ch[current_layout]);
       }
-      // When debounced, proceeds
-      check_button();
-    }
-
-    void check_button() {
-      if (snap[current_layout]) { // if snap is ON, only short press messages are sent
-        if (short_toggle[current_layout] == 1) {
-          if (buttonState && !held) {
-            held = HIGH;
-            if (toggle_state[current_layout] == 0) toggle_state[current_layout] = 127;
-            else toggle_state[current_layout] = 0;
-            sendMessage(short_type[current_layout], short_control[current_layout], toggle_state[current_layout], short_ch[current_layout]);
-            if (num < NUM_LEDS) l[num].led_update(HIGH);
-          }
-          if (!buttonState && held) {
-            held = LOW;
-            if (num < NUM_LEDS) l[num].led_update(LOW);
-          }
-        }
-        else {
-          if (buttonState && !held) {
-            held = HIGH;
-            sendMessage(short_type[current_layout], short_control[current_layout], 127, short_ch[current_layout]);
-            if (num < NUM_LEDS) l[num].led_update(HIGH);
-          }
-          if (!buttonState && held) {
-            held = LOW;
-            sendMessage(short_type[current_layout], short_control[current_layout], 0, short_ch[current_layout]);
-            if (num < NUM_LEDS) l[num].led_update(LOW);
-          }
-        }
-      }
-      else {
-        if (buttonState && !held && !latch) {
-          time_pressed = millis();
-          held = HIGH;
-          if (num < NUM_LEDS) l[num].led_update(HIGH);
-        }
-        if (held && !buttonState) {
-          if (num < NUM_LEDS) l[num].led_update(LOW);
-          if (!latch) {
-            sendMessage(short_type[current_layout], short_control[current_layout], 127, short_ch[current_layout]);
-            sendMessage(short_type[current_layout], short_control[current_layout], 0, short_ch[current_layout]);
-          }
-          held = LOW;
-          latch = LOW;
-        }
-        if (held && ((millis() - time_pressed) > hold_button_time) && !latch ) {
-          if (num < NUM_LEDS) l[num].led_update(LOW);
-          if (num < 6) {
-            sendMessage(long_type[current_layout], long_control[current_layout], 127, long_ch[current_layout]);
-            sendMessage(long_type[current_layout], long_control[current_layout], 0, long_ch[current_layout]);
-          }
-          latch = HIGH;
+      if (!state && btn_state)  {
+        btn_state = LOW;
+        if (snap[current_layout]>0) {
+          sendMessage(short_type[current_layout], short_control[current_layout], 0, short_ch[current_layout]);
+          change_led(LOW);   
         }
       }
     }
-    void set_button_on() {
-      buttonState = HIGH;
+
+    void simpleClick() {
+      if (snap[current_layout]==0){
+      sendMessage(short_type[current_layout], short_control[current_layout], 127, short_ch[current_layout]);
+      sendMessage(short_type[current_layout], short_control[current_layout], 0, short_ch[current_layout]);
+      change_led(LOW);   
+      }
     }
-    void set_button_off() {
-      buttonState = LOW;
+
+    void doubleClick() {
+      if (snap[current_layout]==0){
+      sendMessage(double_type[current_layout], double_control[current_layout], 127, double_ch[current_layout]);
+      sendMessage(double_type[current_layout], double_control[current_layout], 0, double_ch[current_layout]);
+      change_led(LOW);     
+      }
     }
+
+    void longClick() {
+      if (number < 6 and snap[current_layout]==0){ 
+        sendMessage(long_type[current_layout], long_control[current_layout], 127, long_ch[current_layout]);
+        sendMessage(long_type[current_layout], long_control[current_layout], 0, long_ch[current_layout]);
+        change_led(LOW);
+      }
+    }
+
+    void change_led(bool state) {
+      l[number].led_update(state);
+    }
+
+    void attachSimple(parameterizedCallbackFunction f) {
+      OneButton::attachClick(f, this);
+    }
+
+    void attachDouble(parameterizedCallbackFunction f) {
+      OneButton::attachDoubleClick(f, this);
+    }
+
+    void attachLong(parameterizedCallbackFunction f) {
+      OneButton::attachLongPressStart(f, this);
+    }
+
 };
-Button b[NUM_BUTTONS] = {Button(0), Button(1), Button(2), Button(3), Button(4), Button(5), Button(6), Button(7)};
+
+
+NewButton b[NUM_BUTTONS] = {NewButton(0, b_pins[0]), NewButton(1, b_pins[1]), NewButton(2, b_pins[2]), NewButton(3, b_pins[3]), NewButton(4, b_pins[4]), NewButton(5, b_pins[5]), NewButton(6, b_pins[6]), NewButton(7, b_pins[7])};
+
+void simpleClickcallBack(void *p) {
+  ((NewButton *) p)->simpleClick();
+}
+
+void longClickcallBack(void *p) {
+  ((NewButton *) p)->longClick();
+}
+
+void doubleClickcallBack(void *p) {
+  ((NewButton *) p)->doubleClick();
+}

@@ -2,7 +2,7 @@ void check_led(byte channel, byte control, byte value, bool serial) {
   for (int i = 0; i < NUM_LEDS; i++) {
     if (l[i].led_control[current_layout] == control) {
       l[i].set_color(value, channel);
-      l[i].led_update(b[i].held);
+      l[i].led_update(b[i].btn_state);
     }
     if (!serial) delay(1);
   }
@@ -24,7 +24,7 @@ void check_custom_led() {
   for (int i = 0; i < NUM_LEDS; i++) {
     if (l[i].led_control[current_layout] > 128) {
       l[i].set_color(l[i].led_control[current_layout] - 128, 16);
-      l[i].led_update(b[i].held);
+      l[i].led_update(b[i].btn_state);
     }
   }
 }
@@ -127,6 +127,14 @@ void onUSBSysEx(uint8_t *data, unsigned int _length) {
               sysex_to_send[8] = b[i].long_control[layout_number];
               sysex_to_send[9] = b[i].long_ch[layout_number];
               sysex_to_send[10] = b[i].long_type[layout_number];
+              sendUSBSysEx(sysex_to_send, 12);
+              delay(2);
+              // Retrieve and send double button values
+              sysex_to_send[5] = 19;
+              sysex_to_send[7] = i;
+              sysex_to_send[8] = b[i].double_control[layout_number];
+              sysex_to_send[9] = b[i].double_ch[layout_number];
+              sysex_to_send[10] = b[i].double_type[layout_number];
               sendUSBSysEx(sysex_to_send, 12);
               delay(2);
               // Retrieve and send LEDs values
@@ -250,9 +258,29 @@ void onUSBSysEx(uint8_t *data, unsigned int _length) {
           b[num].long_type[rcvd_layout] = btn_type;
           b[num].long_control[rcvd_layout] = btn_ctrl;
           b[num].long_ch[rcvd_layout] = btn_chnl;
-          eeprom_store(rcvd_layout, num + 30, btn_type);
-          eeprom_store(rcvd_layout, num + 36, btn_ctrl);
-          eeprom_store(rcvd_layout, num + 42, btn_chnl);
+          eeprom_store(rcvd_layout, num + 40, btn_type);
+          eeprom_store(rcvd_layout, num + 48, btn_ctrl);
+          eeprom_store(rcvd_layout, num + 56, btn_chnl);
+          if (btn_type == 1) {
+            byte acknowledgment_array[7] = { 240, 122, 29, 1, 19, 78, 247 };
+            sendUSBSysEx(acknowledgment_array, 7);
+          }
+        }
+        break;
+
+      case 19:
+        {  // Set Double Press Buttons Type Control and Channel
+          byte rcvd_layout = data[6];
+          byte num = data[7];
+          byte btn_ctrl = data[8];
+          byte btn_type = data[9];
+          byte btn_chnl = data[10];
+          b[num].double_type[rcvd_layout] = btn_type;
+          b[num].double_control[rcvd_layout] = btn_ctrl;
+          b[num].double_ch[rcvd_layout] = btn_chnl;
+          eeprom_store(rcvd_layout, num + 364, btn_type);
+          eeprom_store(rcvd_layout, num + 372, btn_ctrl);
+          eeprom_store(rcvd_layout, num + 380, btn_chnl);
           if (btn_type == 1) {
             byte acknowledgment_array[7] = { 240, 122, 29, 1, 19, 78, 247 };
             sendUSBSysEx(acknowledgment_array, 7);
@@ -268,10 +296,10 @@ void onUSBSysEx(uint8_t *data, unsigned int _length) {
           byte toggle = data[8];
           if (data[9] == 0) {
             b[num].short_toggle[rcvd_layout] = toggle;
-            eeprom_store(rcvd_layout, num + 18, toggle);
+            eeprom_store(rcvd_layout, num + 24, toggle);
           } else {
             b[num].long_toggle[rcvd_layout] = toggle;
-            eeprom_store(rcvd_layout, num + 18, toggle);
+            eeprom_store(rcvd_layout, num + 64, toggle);
           }
         }
         break;

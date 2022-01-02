@@ -14,7 +14,6 @@ class AnalogPot {
     static const int RunningAverageCount = 30;
     float RunningAverageBuffer[RunningAverageCount];
     int NextRunningAverage;
-    byte default_sliders [3][2] = {{73, 59}, {61, 62}, {61, 62}};
     int other_pedal;
 
   public:
@@ -75,21 +74,11 @@ class AnalogPot {
 
 
     void process_analog(int value_MIDI) {
-      // if (pedal_state[number]) {
       if ((lastMIDIValue != value_MIDI)) {
         lastMIDIValue = value_MIDI;
         USB_MIDI.sendControlChange(control[current_layout], value_MIDI, channel[current_layout]);
         SERIAL_MIDI.sendControlChange(control[current_layout], value_MIDI, channel[current_layout]);
       }
-      /*    }
-          else {
-            if (lastValue + 1 < value_MIDI ||  value_MIDI < lastValue - 1) {
-              lastValue = value_MIDI;
-              pedal_state[number] = HIGH;
-              USB_MIDI.sendControlChange(control[current_layout], int(value_MIDI), channel[current_layout]);
-              SERIAL_MIDI.sendControlChange(control[current_layout], int(value_MIDI), channel[current_layout]);
-            }
-          }*/
     }
 
     void _calibrate( int num, int min_or_max) {

@@ -36,15 +36,6 @@ void clock_received() {
 }
 
 // FADE
-/*
-void clock_received() {
-  for (byte i = 0; i < NUM_LEDS; i++) {
-    if (l[i].led_channel[current_layout] == 15) l[i].fade_slow(_clock);
-    else if (l[i].led_channel[current_layout] == 14) l[i].blink_fast(_clock);
-  }
-  _clock += 1;
-  if (_clock == fade_resolution ) _clock = 0;
-}*/
 
 void clock_continue() {
   _clock = 0;
