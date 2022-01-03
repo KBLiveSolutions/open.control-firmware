@@ -224,8 +224,11 @@ void clear_EEPROM() {
 }
 
 void Check_User_Input() {
-  b[i].tick();
-  b[i].button_check(!b[i].isIdle());
+  if (b[i].ext_MIDI_On){
+    b[i].tick(b[i].ext_MIDI_On);  // standard button check   
+  }
+  else b[i].tick();  // standard button check
+  b[i].button_check(!b[i].isIdle());  // button check for snap
   if (i < NUM_SLIDERS) a[i].check_pot();
   r[i % 2].update_rotary();
   i++;
@@ -255,6 +258,7 @@ void loop1() {
     Display_Handler();
     _now_micro =  micros();
   }
+  delayMicroseconds(27);
   if (millis() - _now > scrolling_speed / 2) {
     disp.inc_scroll();
     _now = millis();

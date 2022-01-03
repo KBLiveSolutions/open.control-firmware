@@ -105,7 +105,6 @@ void onUSBSysEx(uint8_t *data, unsigned int _length) {
         //  byte sysex_to_send_options[9] = { 240, 122, 29, 1, 19, 17, 0, 0, 247 };
           for (byte layout_number = 0; layout_number < NUM_LAYOUT; layout_number++) {
             sysex_to_send[6] = layout_number;
-            // sysex_to_send_snap[6] = layout_number;
             for (byte i = 0; i < NUM_BUTTONS; i += 1) {
               // Retrieve and send short button values
               sysex_to_send[5] = 10;
@@ -135,6 +134,24 @@ void onUSBSysEx(uint8_t *data, unsigned int _length) {
               sysex_to_send[8] = b[i].double_control[layout_number];
               sysex_to_send[9] = b[i].double_ch[layout_number];
               sysex_to_send[10] = b[i].double_type[layout_number];
+              sendUSBSysEx(sysex_to_send, 12);
+              delay(2);
+              sysex_to_send[5] = 20;
+              sysex_to_send[7] = i;
+              sysex_to_send[8] = b[i].short_toggle[layout_number];
+              sysex_to_send[9] = 0;
+              sendUSBSysEx(sysex_to_send, 12);
+              delay(2);
+              sysex_to_send[5] = 20;
+              sysex_to_send[7] = i;
+              sysex_to_send[8] = b[i].long_toggle[layout_number];
+              sysex_to_send[9] = 1;
+              sendUSBSysEx(sysex_to_send, 12);
+              delay(2);
+              sysex_to_send[5] = 20;
+              sysex_to_send[7] = i;
+              sysex_to_send[8] = b[i].double_toggle[layout_number];
+              sysex_to_send[9] = 2;
               sendUSBSysEx(sysex_to_send, 12);
               delay(2);
               // Retrieve and send LEDs values
@@ -297,9 +314,14 @@ void onUSBSysEx(uint8_t *data, unsigned int _length) {
           if (data[9] == 0) {
             b[num].short_toggle[rcvd_layout] = toggle;
             eeprom_store(rcvd_layout, num + 24, toggle);
-          } else {
+          } 
+          else if (data[9] == 1){
             b[num].long_toggle[rcvd_layout] = toggle;
             eeprom_store(rcvd_layout, num + 64, toggle);
+          }
+          else if (data[9] == 2){
+            b[num].double_toggle[rcvd_layout] = toggle;
+            eeprom_store(rcvd_layout, num + 388, toggle);
           }
         }
         break;
