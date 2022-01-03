@@ -46,29 +46,32 @@ class AnalogPot {
 
 
     void check_pot() {
-      int reading  = average(analogRead(pin) / 16); // reads button pin state
-      // Debounces button
-      if ((millis() - lastDebounceTime) > debounceDelayAnalog) {
-        if (reading > lastValue + margin || reading < lastValue - margin) {
-          lastDebounceTime = millis();
-          if (!slider_state){
-            if (abs(analog_to_MIDI(lastValue) - _value) < 5){
-              slider_state = HIGH;
-              l[4+number].show_green();
-              slider_on_time = millis();
+      if (control[current_layout] > 0) {
+        int reading  = average(analogRead(pin) / 16); // reads button pin state
+        // Debounces button
+        if ((millis() - lastDebounceTime) > debounceDelayAnalog) {
+          if (reading > lastValue + margin || reading < lastValue - margin) {
+            lastDebounceTime = millis();
+            if (!slider_state) {
+              if (abs(analog_to_MIDI(lastValue) - _value) < 5) {
+                slider_state = HIGH;
+                l[4 + number].show_green();
+                slider_on_time = millis();
+              }
             }
+            else {
+              if ((millis() - slider_on_time) > 500) l[4 + number].show_color();
+              process_analog(analog_to_MIDI(lastValue));
+            }
+            lastValue = reading;
           }
-          else {
-            if ((millis() - slider_on_time) > 500) l[4+number].show_color();
-            process_analog(analog_to_MIDI(lastValue));
-          }
-          lastValue = reading;
         }
-      }
-      if (reading != lastReading) {
-       // process_analog(analog_to_MIDI(lastValue));
-      }
+        if (reading != lastReading) {
+          // process_analog(analog_to_MIDI(lastValue));
+        }
         lastReading = reading;
+
+      }
     }
 
 

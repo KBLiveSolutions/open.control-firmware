@@ -1,17 +1,15 @@
-
-int _tick = 0;
-int matrix_brightness = 150;
-
-byte const MAX_CHAR = 20;
-const int  latch_Col = 24;
-const int  clock_Col = 23;
-const int  data_Col = 25;
-const int  toggle_Col = 22;
-const int  row_pins[6] = { 16, 17, 18, 19, 20, 21 };
+#define  latch_Col 24
+#define  clock_Col 23
+#define  data_Col 25
+#define  toggle_Col 22
+byte const  row_pins[6] = { 16, 17, 18, 19, 20, 21 };
 
 // LED Matrix
-int const MAX_CONCAT = 99;
+#define MAX_CONCAT 99
+#define  MAX_CHAR 20
 int column_data[34] = { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+int _tick = 0;
+int matrix_brightness = 150;
 
 class Display {
 private:

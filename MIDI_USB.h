@@ -69,7 +69,7 @@ void onUSBSysEx(uint8_t *data, unsigned int _length) {
 
       case 1:
         {                                                                  // Handshake with Editor
-          byte sysexArrayBoot[] = { 240, 122, 29, 1, 19, 68, 1, 0, 247 };  //String that answers to the MIDI Remote Script for Ableton Live
+          byte sysexArrayBoot[] = { 240, 122, 29, 1, 19, 68, FIRMWARE_MAJOR_VERSION, FIRMWARE_MINOR_VERSION, 247 };  //String that answers to the MIDI Remote Script for Ableton Live
           sendUSBSysEx(sysexArrayBoot, 9);
         }
         break;

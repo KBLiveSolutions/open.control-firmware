@@ -9,7 +9,7 @@ int default_leds [3][6] = {{13, 1, 2, 11, 14, 15}, {22, 24, 26, 25, 18, 19}, {1,
 byte default_rotary [3][2] = {{59, 60}, {61, 62}, {63, 64}};
 byte default_rotary_hold [3][2] = {{89, 90}, {73, 37}, {99, 88}};
 
-byte default_sliders [3][2] = {{73, 59}, {61, 62}, {61, 62}};
+byte default_sliders [3][2] = {{0, 0}, {0, 0}, {0, 0}};
         
 int font_5x7[106][3] = {
   { 0x00, 0x00, 0x00 },  //
