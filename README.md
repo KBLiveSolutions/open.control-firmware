@@ -1,5 +1,5 @@
-![open.control](https://github.com/KBLiveSolutions/open.control/blob/main/assets/images/logo_big.png)
-
+<!-- ![open.control](https://github.com/KBLiveSolutions/open.control/blob/main/assets/images/logo_big.png) -->
+<img src="https://github.com/KBLiveSolutions/open.control/blob/main/assets/images/logo_big.png" alt="logo" width="200"/>
 
 # open·control firmware
 
