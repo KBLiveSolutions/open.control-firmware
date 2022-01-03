@@ -20,6 +20,10 @@ void sendSerialSysEx(const uint8_t *data, int _size) {
 
 
 void onExternalMessageReceived(byte channel, byte control, byte value, byte type) {
+<<<<<<< Updated upstream
+=======
+  USB_MIDI.sendNoteOn(control, value, channel);
+>>>>>>> Stashed changes
   bool is_Control = LOW;
   for (byte i = 0; i < NUM_BUTTONS; i++) {  // goes through each Button
     if (channel == external_MIDI_channel[i] && control == external_MIDI_control[i]  && type == external_MIDI_type[i]) { // checks if the message received is an externem_MIDI control/channel
