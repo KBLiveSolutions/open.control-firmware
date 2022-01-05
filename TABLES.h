@@ -1,8 +1,8 @@
 
 // Factory default button values for Pages 1 to 3. Overriden as soon as they are changed with the Web Editor
 byte default_short[3][NUM_BUTTONS] = {{13, 1, 2, 11, 14, 15, 56, 57}, {22, 24, 26, 25, 18, 19, 56, 57}, {1, 6, 7, 75, 9, 8, 56, 57}};
-byte default_long [3][NUM_BUTTONS] = {{16, 17, 3, 43, 4, 40, 56, 57}, {23, 27, 55, 20, 21, 5, 56, 57}, {100, 103, 4, 42, 10, 41, 56, 57}};
-byte default_double [3][NUM_BUTTONS] = {{1, 2, 3, 4, 5, 6, 7, 8}, {9, 10, 11, 12, 13, 14, 15, 16}, {21, 22, 23, 24, 25, 26, 27, 28}};
+byte default_long [3][NUM_BUTTONS] = {{17, 17, 3, 43, 4, 40, 56, 57}, {23, 27, 55, 20, 21, 5, 56, 57}, {100, 103, 4, 42, 10, 41, 56, 57}};
+byte default_double [3][NUM_BUTTONS] = {{16, 2, 3, 4, 5, 6, 105, 106}, {9, 10, 11, 12, 13, 14, 15, 16}, {21, 22, 23, 24, 25, 26, 27, 28}};
 
 int default_leds [3][6] = {{13, 1, 2, 11, 14, 15}, {22, 24, 26, 25, 18, 19}, {1, 6, 7, 42, 9, 8}};
 

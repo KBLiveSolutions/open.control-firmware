@@ -65,26 +65,23 @@ void sendUSBSysEx(const uint8_t *data, int _size) {
 void onUSBSysEx(uint8_t *data, unsigned int _length) {
   if (data[1] == 122 && data[2] == 29 && data[3] == 1 && data[4] == 19) {
     switch (data[5]) {
-        // Connect Disconnect
+      // Connect Disconnect
 
       case 1:
-        {                                                                  // Handshake with Editor
+        { // Handshake with Editor
           byte sysexArrayBoot[] = { 240, 122, 29, 1, 19, 68, FIRMWARE_MAJOR_VERSION, FIRMWARE_MINOR_VERSION, 247 };  //String that answers to the MIDI Remote Script for Ableton Live
           sendUSBSysEx(sysexArrayBoot, 9);
         }
         break;
 
       case 2:
-        {                                                           // Handshake with Live
+        { // Handshake with Live
           byte sysexArrayBoot[] = { 240, 122, 29, 1, 19, 2, 247 };  //String that answers to the MIDI Remote Script for Ableton Live
           sendUSBSysEx(sysexArrayBoot, 7);
-          for (byte i = 0; i < 10; i++) {  // sending the options
-            byte option_value = EEPROM.read(300 + i);
-            if (option_value != 255) {
-              byte _option = 30 + i;
-              byte sysex_array[8] = { 240, 122, 29, 1, 19, _option, option_value, 247 };
-              sendUSBSysEx(sysex_array, 8);
-            }
+          for (byte i = 0; i < 2; i++) {  // sending the options
+            byte _option = options[i];
+            byte sysex_array[9] = { 240, 122, 29, 1, 19, 30, i, _option, 247 };
+            sendUSBSysEx(sysex_array, 9);
           }
         }
         break;
@@ -97,18 +94,18 @@ void onUSBSysEx(uint8_t *data, unsigned int _length) {
         break;
 
 
-        // Configuration From Editor
+      // Configuration From Editor
 
       case 4:
-        {  // Dump: Receiving {240, 122, 29, 1, 19, 4} from the Editor send each control 1 by 1 {240, 122, 29, 1, 19, 77, Layout, Control, CC Number, Channel, Type, 247}
+        { // Dump: Receiving {240, 122, 29, 1, 19, 4} from the Editor send each control 1 by 1 {240, 122, 29, 1, 19, 77, Layout, Control, CC Number, Channel, Type, 247}
           byte sysex_to_send[12] = { 240, 122, 29, 1, 19, 4, 0, 0, 0, 0, 0, 247 };
-        //  byte sysex_to_send_options[9] = { 240, 122, 29, 1, 19, 17, 0, 0, 247 };
+          //  byte sysex_to_send_options[9] = { 240, 122, 29, 1, 19, 17, 0, 0, 247 };
           for (byte layout_number = 0; layout_number < NUM_LAYOUT; layout_number++) {
             sysex_to_send[6] = layout_number;
             for (byte i = 0; i < NUM_BUTTONS; i += 1) {
+              sysex_to_send[7] = i;
               // Retrieve and send short button values
               sysex_to_send[5] = 10;
-              sysex_to_send[7] = i;
               sysex_to_send[8] = b[i].short_control[layout_number];
               sysex_to_send[9] = b[i].short_ch[layout_number];
               sysex_to_send[10] = b[i].short_type[layout_number];
@@ -116,13 +113,11 @@ void onUSBSysEx(uint8_t *data, unsigned int _length) {
               delay(2);
               // Retrieve and send snap values
               sysex_to_send[5] = 16;
-              sysex_to_send[7] = i;
               sysex_to_send[8] = b[i].snap[layout_number];
               sendUSBSysEx(sysex_to_send, 12);
               delay(2);
               // Retrieve and send long button values
               sysex_to_send[5] = 11;
-              sysex_to_send[7] = i;
               sysex_to_send[8] = b[i].long_control[layout_number];
               sysex_to_send[9] = b[i].long_ch[layout_number];
               sysex_to_send[10] = b[i].long_type[layout_number];
@@ -130,26 +125,22 @@ void onUSBSysEx(uint8_t *data, unsigned int _length) {
               delay(2);
               // Retrieve and send double button values
               sysex_to_send[5] = 19;
-              sysex_to_send[7] = i;
               sysex_to_send[8] = b[i].double_control[layout_number];
               sysex_to_send[9] = b[i].double_ch[layout_number];
               sysex_to_send[10] = b[i].double_type[layout_number];
               sendUSBSysEx(sysex_to_send, 12);
               delay(2);
               sysex_to_send[5] = 20;
-              sysex_to_send[7] = i;
               sysex_to_send[8] = b[i].short_toggle[layout_number];
               sysex_to_send[9] = 0;
               sendUSBSysEx(sysex_to_send, 12);
               delay(2);
               sysex_to_send[5] = 20;
-              sysex_to_send[7] = i;
               sysex_to_send[8] = b[i].long_toggle[layout_number];
               sysex_to_send[9] = 1;
               sendUSBSysEx(sysex_to_send, 12);
               delay(2);
               sysex_to_send[5] = 20;
-              sysex_to_send[7] = i;
               sysex_to_send[8] = b[i].double_toggle[layout_number];
               sysex_to_send[9] = 2;
               sendUSBSysEx(sysex_to_send, 12);
@@ -190,7 +181,7 @@ void onUSBSysEx(uint8_t *data, unsigned int _length) {
               delay(2);
               // Retrieve and send sliders values
               sysex_to_send[5] = 14;
-              sysex_to_send[7] = i+2;
+              sysex_to_send[7] = i + 2;
               sysex_to_send[8] = r[i].control_hold[layout_number];
               sysex_to_send[9] = r[i].channel_hold[layout_number];
               sendUSBSysEx(sysex_to_send, 12);
@@ -233,7 +224,7 @@ void onUSBSysEx(uint8_t *data, unsigned int _length) {
         break;
 
       case 10:
-        {  // Set Short Buttons Type Control and Channel
+        { // Set Short Buttons Type Control and Channel
           byte rcvd_layout = data[6];
           byte num = data[7];
           byte btn_ctrl = data[8];
@@ -255,7 +246,7 @@ void onUSBSysEx(uint8_t *data, unsigned int _length) {
 
 
       case 11:
-        {  // Sets Button Snap Value
+        { // Sets Button Snap Value
           byte rcvd_layout = data[6];
           byte num = data[7];
           byte snap = data[8];
@@ -266,7 +257,7 @@ void onUSBSysEx(uint8_t *data, unsigned int _length) {
 
 
       case 12:
-        {  // Set Long Buttons Type Control and Channel
+        { // Set Long Buttons Type Control and Channel
           byte rcvd_layout = data[6];
           byte num = data[7];
           byte btn_ctrl = data[8];
@@ -286,7 +277,7 @@ void onUSBSysEx(uint8_t *data, unsigned int _length) {
         break;
 
       case 19:
-        {  // Set Double Press Buttons Type Control and Channel
+        { // Set Double Press Buttons Type Control and Channel
           byte rcvd_layout = data[6];
           byte num = data[7];
           byte btn_ctrl = data[8];
@@ -307,19 +298,19 @@ void onUSBSysEx(uint8_t *data, unsigned int _length) {
 
 
       case 13:
-        {  // Sets Button Toggle Value
+        { // Sets Button Toggle Value
           byte rcvd_layout = data[6];
           byte num = data[7];
           byte toggle = data[8];
           if (data[9] == 0) {
             b[num].short_toggle[rcvd_layout] = toggle;
             eeprom_store(rcvd_layout, num + 24, toggle);
-          } 
-          else if (data[9] == 1){
+          }
+          else if (data[9] == 1) {
             b[num].long_toggle[rcvd_layout] = toggle;
             eeprom_store(rcvd_layout, num + 64, toggle);
           }
-          else if (data[9] == 2){
+          else if (data[9] == 2) {
             b[num].double_toggle[rcvd_layout] = toggle;
             eeprom_store(rcvd_layout, num + 388, toggle);
           }
@@ -327,7 +318,7 @@ void onUSBSysEx(uint8_t *data, unsigned int _length) {
         break;
 
       case 14:
-        {  // Sets LEDs Control and Channel
+        { // Sets LEDs Control and Channel
           byte rcvd_layout = data[6];
           byte num = data[7];
           byte led_ctrl = data[8];
@@ -346,7 +337,7 @@ void onUSBSysEx(uint8_t *data, unsigned int _length) {
         break;
 
       case 15:
-        {  // Sets LEDs Control and Channel for Custom Color
+        { // Sets LEDs Control and Channel for Custom Color
           byte rcvd_layout = data[6];
           byte num = data[7];
           byte led_ctrl = data[8] + 128;  // led_ctrl is stored > 128 to differentiate from "standard" LED colors
@@ -360,18 +351,18 @@ void onUSBSysEx(uint8_t *data, unsigned int _length) {
         break;
 
       case 16:
-        {  // Set Rotary Encoder Control and Channel
+        { // Set Rotary Encoder Control and Channel
           byte rcvd_layout = data[6];
           byte num = data[7];
           byte control = data[8];
           byte channel = data[10];
-          if (num < 2){
-          r[num].control[rcvd_layout] = control;
-          r[num].channel[rcvd_layout] = channel;
+          if (num < 2) {
+            r[num].control[rcvd_layout] = control;
+            r[num].channel[rcvd_layout] = channel;
           }
-          else{
-          r[num-2].control_hold[rcvd_layout] = control;
-          r[num-2].channel_hold[rcvd_layout] = channel;
+          else {
+            r[num - 2].control_hold[rcvd_layout] = control;
+            r[num - 2].channel_hold[rcvd_layout] = channel;
           }
           eeprom_store(rcvd_layout, num + 90, control);
           eeprom_store(rcvd_layout, num + 94, channel);
@@ -383,7 +374,7 @@ void onUSBSysEx(uint8_t *data, unsigned int _length) {
         break;
 
       case 17:
-        {  // Sets Sliders Control and Channel
+        { // Sets Sliders Control and Channel
           byte rcvd_layout = data[6];
           byte num = data[7];
           byte control = data[8];
@@ -400,7 +391,7 @@ void onUSBSysEx(uint8_t *data, unsigned int _length) {
         break;
 
       case 18:
-        {  // Sets Display Controls
+        { // Sets Display Controls
           byte rcvd_layout = data[6];
           byte layout = data[8];
           disp.layout[rcvd_layout] = layout;
@@ -413,7 +404,7 @@ void onUSBSysEx(uint8_t *data, unsigned int _length) {
         break;
 
       case 21:
-        {  // Sets External MIDI Type Control and Channel
+        { // Sets External MIDI Type Control and Channel
 
           byte datatype = data[6];
           byte but_num = data[7];
@@ -421,11 +412,11 @@ void onUSBSysEx(uint8_t *data, unsigned int _length) {
           if (datatype == 0) {
             external_MIDI_type[but_num] = value;
             raw_eeprom_store(310 + but_num, value);
-          } 
+          }
           else if (datatype == 1) {
             external_MIDI_control[but_num] = value;
             raw_eeprom_store(320 + but_num, value);
-          } 
+          }
           else if (datatype == 2) {
             external_MIDI_channel[but_num] = value;
             raw_eeprom_store(330 + but_num, value);
@@ -434,14 +425,14 @@ void onUSBSysEx(uint8_t *data, unsigned int _length) {
         break;
 
       case 22:
-        {  // Sets Display Brightness
+        { // Sets Display Brightness
           matrix_brightness = (127 - data[6]) * 2;
           raw_eeprom_store(340, matrix_brightness);
         }
         break;
 
       case 23:
-        {  // Sets LEDs Brightness
+        { // Sets LEDs Brightness
           BRIGHTNESS = data[6] * 2;
           pixels.setBrightness(BRIGHTNESS);
           pixels.show();
@@ -450,21 +441,21 @@ void onUSBSysEx(uint8_t *data, unsigned int _length) {
         break;
 
       case 25:
-        {  // Sets USB Through
+        { // Sets USB Through
           USB_thru = data[6];
           raw_eeprom_store(342, USB_thru);
         }
         break;
 
       case 26:
-        {  // Sets SERIAL Through
+        { // Sets SERIAL Through
           SERIAL_thru = data[6];
           raw_eeprom_store(343, SERIAL_thru);
         }
         break;
 
       case 27:
-        {  // Sets Pedal Min and Max
+        { // Sets Pedal Min and Max
           int pedal_number = data[7];
           int min_or_max = data[8];
           a[pedal_number]._calibrate(pedal_number, min_or_max);
@@ -472,36 +463,36 @@ void onUSBSysEx(uint8_t *data, unsigned int _length) {
         break;
 
       case 30:
-        {  // Options
+        { // Options
           options[data[6]] =  data[7];
           raw_eeprom_store(350 + data[6], data[7]);
           byte data_array[9] = { 240, 122, 29, 1, 19, 30, data[6], data[7], 247};
           sendUSBSysEx(data_array, 9);
-         // sendSerialSysEx(data_array, 9);
+          // sendSerialSysEx(data_array, 9);
         }
         break;
 
 
-        // receive Data from Live
+      // receive Data from Live
 
       case 40:
-        {  // Layout Value received
+        { // Layout Value received
           clear_leds();
           disp.clear_text();
           current_layout = data[6];
-          int page_text[MAX_CHAR] = { 48, 65, 71, 69, 0, (current_layout+17) };
+          int page_text[MAX_CHAR] = { 48, 65, 71, 69, 0, (current_layout + 17) };
           disp.build_text(6, page_text);
           showing_page = HIGH;
-         _now_page = millis();
+          _now_page = millis();
           check_custom_led();
-          for (int i=0 ; i<NUM_SLIDERS ; i++){
+          for (int i = 0 ; i < NUM_SLIDERS ; i++) {
             a[i].slider_state = LOW;
           }
         }
         break;
 
       case 51:
-        {  // Text received
+        { // Text received
           byte text_len = data[7];  //min(MAX_CHAR, data[7]);
           if (data[6] == disp.layout[current_layout]) {
             disp.text_len = data[7];
@@ -512,21 +503,21 @@ void onUSBSysEx(uint8_t *data, unsigned int _length) {
           if (!showing_page) disp.build_text(disp.text_len, disp.data_text);
         }
         break;
-              
-       case 54:
-        {  // Direct Text received
-          byte text_len = data[7];    
-            for (byte i = 0; i < text_len; i++) {
-              disp.temp_text[i] = data[8 + i];
-            }
+
+      case 54:
+        { // Direct Text received
+          byte text_len = data[7];
+          for (byte i = 0; i < text_len; i++) {
+            disp.temp_text[i] = data[8 + i];
+          }
           disp.build_text(text_len, disp.temp_text);
           showing_page = HIGH;
-         _now_page = millis();
+          _now_page = millis();
         }
         break;
 
       case 52:
-        {  // Receive Looper number from Live
+        { // Receive Looper number from Live
           byte note = data[6];
           byte type = data[7];
           byte chnl = data[8];
@@ -545,7 +536,7 @@ void onUSBSysEx(uint8_t *data, unsigned int _length) {
         break;
 
       case 53:
-        {  // Receive Looper Clear All
+        { // Receive Looper Clear All
           byte note = data[6];
           byte type = data[7];
           byte chnl = data[8];
@@ -553,7 +544,7 @@ void onUSBSysEx(uint8_t *data, unsigned int _length) {
           sendUSBNote(note, 0, chnl);
         }
         break;
-        
+
     }
   }
 }

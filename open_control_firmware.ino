@@ -65,7 +65,7 @@ void setup_Buttons(){
   b[i].attachLong(longClickcallBack);
   b[i].attachDouble(doubleClickcallBack);
   b[i].setClickTicks(150);
-  b[i].setDebounceTicks(10);
+  b[i].setDebounceTicks(20);
   }
 }
 
@@ -176,15 +176,10 @@ void setup_EEPROM() {
     if (_byte != 255) disp.layout[layout_num] = _byte;
   }
 
-
   for (byte i = 0; i < 2; i++) {
     // Retrieve Options and send them to Live
     _byte = EEPROM.read(350 + i);
-    if (_byte != 255) {
-      byte sysex_array[9] = { 240, 122, 29, 1, 19, 30, i, _byte, 247 };
-      sendUSBSysEx(sysex_array, 9);
-      options[i] = _byte;
-    }
+    if (_byte != 255) options[i] = _byte;
   }
 
   for (byte i = 0; i < 10; i++) {

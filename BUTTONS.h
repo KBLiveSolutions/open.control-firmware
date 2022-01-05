@@ -103,7 +103,7 @@ class NewButton : public OneButton {
 
 
     void change_led(bool state) {
-      l[number].led_update(state);
+      if (number < 6) l[number].led_update(state);
     }
 
     void attachSimple(parameterizedCallbackFunction f) {
