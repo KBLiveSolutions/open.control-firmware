@@ -92,14 +92,18 @@ void onUSBSysEx(uint8_t *data, unsigned int _length) {
           init_LEDS();
         }
         break;
-
+        
+     case 5: {   // Live update request
+            byte acknowledgment_array[7] = { 240, 122, 29, 1, 19, 78, 247 };
+            sendUSBSysEx(acknowledgment_array, 7);
+        }
+        break;
 
       // Configuration From Editor
 
       case 4:
         { // Dump: Receiving {240, 122, 29, 1, 19, 4} from the Editor send each control 1 by 1 {240, 122, 29, 1, 19, 77, Layout, Control, CC Number, Channel, Type, 247}
           byte sysex_to_send[12] = { 240, 122, 29, 1, 19, 4, 0, 0, 0, 0, 0, 247 };
-          //  byte sysex_to_send_options[9] = { 240, 122, 29, 1, 19, 17, 0, 0, 247 };
           for (byte layout_number = 0; layout_number < NUM_LAYOUT; layout_number++) {
             sysex_to_send[6] = layout_number;
             for (byte i = 0; i < NUM_BUTTONS; i += 1) {
@@ -112,12 +116,12 @@ void onUSBSysEx(uint8_t *data, unsigned int _length) {
               sendUSBSysEx(sysex_to_send, 12);
               delay(2);
               // Retrieve and send snap values
-              sysex_to_send[5] = 16;
+              sysex_to_send[5] = 11;
               sysex_to_send[8] = b[i].snap[layout_number];
               sendUSBSysEx(sysex_to_send, 12);
               delay(2);
               // Retrieve and send long button values
-              sysex_to_send[5] = 11;
+              sysex_to_send[5] = 12;
               sysex_to_send[8] = b[i].long_control[layout_number];
               sysex_to_send[9] = b[i].long_ch[layout_number];
               sysex_to_send[10] = b[i].long_type[layout_number];
@@ -130,17 +134,17 @@ void onUSBSysEx(uint8_t *data, unsigned int _length) {
               sysex_to_send[10] = b[i].double_type[layout_number];
               sendUSBSysEx(sysex_to_send, 12);
               delay(2);
-              sysex_to_send[5] = 20;
+              sysex_to_send[5] = 13;
               sysex_to_send[8] = b[i].short_toggle[layout_number];
               sysex_to_send[9] = 0;
               sendUSBSysEx(sysex_to_send, 12);
               delay(2);
-              sysex_to_send[5] = 20;
+              sysex_to_send[5] = 13;
               sysex_to_send[8] = b[i].long_toggle[layout_number];
               sysex_to_send[9] = 1;
               sendUSBSysEx(sysex_to_send, 12);
               delay(2);
-              sysex_to_send[5] = 20;
+              sysex_to_send[5] = 13;
               sysex_to_send[8] = b[i].double_toggle[layout_number];
               sysex_to_send[9] = 2;
               sendUSBSysEx(sysex_to_send, 12);
@@ -148,7 +152,7 @@ void onUSBSysEx(uint8_t *data, unsigned int _length) {
               // Retrieve and send LEDs values
             }
             for (byte i = 0; i < NUM_LEDS; i += 1) {
-              sysex_to_send[5] = 12;
+              sysex_to_send[5] = 14;
               sysex_to_send[7] = i;
               byte ctrl = l[i].led_control[layout_number];
               if (ctrl > 128) {
@@ -164,7 +168,7 @@ void onUSBSysEx(uint8_t *data, unsigned int _length) {
             }
             for (byte i = 0; i < NUM_SLIDERS; i += 1) {
               // Retrieve and send sliders values
-              sysex_to_send[5] = 13;
+              sysex_to_send[5] = 17;
               sysex_to_send[7] = i;
               sysex_to_send[8] = a[i].control[layout_number];
               sysex_to_send[9] = a[i].channel[layout_number];
@@ -172,16 +176,16 @@ void onUSBSysEx(uint8_t *data, unsigned int _length) {
               delay(2);
             }
             for (byte i = 0; i < NUM_ENCODERS; i += 1) {
-              // Retrieve and send sliders values
-              sysex_to_send[5] = 14;
+              // Retrieve and send encoders values
+              sysex_to_send[5] = 8;
               sysex_to_send[7] = i;
               sysex_to_send[8] = r[i].control[layout_number];
               sysex_to_send[9] = r[i].channel[layout_number];
               sendUSBSysEx(sysex_to_send, 12);
               delay(2);
-              // Retrieve and send sliders values
-              sysex_to_send[5] = 14;
-              sysex_to_send[7] = i + 2;
+              // Retrieve and send encoders hold values
+              sysex_to_send[5] = 9;
+              sysex_to_send[7] = i;
               sysex_to_send[8] = r[i].control_hold[layout_number];
               sysex_to_send[9] = r[i].channel_hold[layout_number];
               sendUSBSysEx(sysex_to_send, 12);
@@ -189,7 +193,7 @@ void onUSBSysEx(uint8_t *data, unsigned int _length) {
             }
 
             // Retrieve and send display values
-            sysex_to_send[5] = 15;
+            sysex_to_send[5] = 18;
             sysex_to_send[8] = disp.layout[layout_number];
             sysex_to_send[9] = 1;
             sysex_to_send[10] = 1;
@@ -199,7 +203,7 @@ void onUSBSysEx(uint8_t *data, unsigned int _length) {
 
           // Retrieve and send External MIDI values
           for (byte i = 0; i < 10; i += 1) {
-            sysex_to_send[5] = 18;
+            sysex_to_send[5] = 21;
             sysex_to_send[6] = 0;
             sysex_to_send[7] = i;
             sysex_to_send[8] = external_MIDI_control[i];
@@ -237,10 +241,6 @@ void onUSBSysEx(uint8_t *data, unsigned int _length) {
           eeprom_store(rcvd_layout, num, btn_type);
           eeprom_store(rcvd_layout, num + 8, btn_ctrl);
           eeprom_store(rcvd_layout, num + 16, btn_chnl);
-          if (btn_type == 1) {
-            byte acknowledgment_array[7] = { 240, 122, 29, 1, 19, 78, 247 };
-            sendUSBSysEx(acknowledgment_array, 7);
-          }
         }
         break;
 
@@ -269,10 +269,6 @@ void onUSBSysEx(uint8_t *data, unsigned int _length) {
           eeprom_store(rcvd_layout, num + 40, btn_type);
           eeprom_store(rcvd_layout, num + 48, btn_ctrl);
           eeprom_store(rcvd_layout, num + 56, btn_chnl);
-          if (btn_type == 1) {
-            byte acknowledgment_array[7] = { 240, 122, 29, 1, 19, 78, 247 };
-            sendUSBSysEx(acknowledgment_array, 7);
-          }
         }
         break;
 
@@ -289,10 +285,6 @@ void onUSBSysEx(uint8_t *data, unsigned int _length) {
           eeprom_store(rcvd_layout, num + 364, btn_type);
           eeprom_store(rcvd_layout, num + 372, btn_ctrl);
           eeprom_store(rcvd_layout, num + 380, btn_chnl);
-          if (btn_type == 1) {
-            byte acknowledgment_array[7] = { 240, 122, 29, 1, 19, 78, 247 };
-            sendUSBSysEx(acknowledgment_array, 7);
-          }
         }
         break;
 
@@ -329,10 +321,6 @@ void onUSBSysEx(uint8_t *data, unsigned int _length) {
           eeprom_store(rcvd_layout, num + 72, led_type);
           eeprom_store(rcvd_layout, num + 78, led_ctrl);
           eeprom_store(rcvd_layout, num + 84, led_chnl);
-          {
-            byte acknowledgment_array[7] = { 240, 122, 29, 1, 19, 78, 247 };
-            sendUSBSysEx(acknowledgment_array, 7);
-          }
         }
         break;
 
@@ -350,26 +338,29 @@ void onUSBSysEx(uint8_t *data, unsigned int _length) {
         }
         break;
 
-      case 16:
+      case 8:
         { // Set Rotary Encoder Control and Channel
           byte rcvd_layout = data[6];
           byte num = data[7];
           byte control = data[8];
           byte channel = data[10];
-          if (num < 2) {
-            r[num].control[rcvd_layout] = control;
-            r[num].channel[rcvd_layout] = channel;
-          }
-          else {
-            r[num - 2].control_hold[rcvd_layout] = control;
-            r[num - 2].channel_hold[rcvd_layout] = channel;
-          }
+          r[num].control[rcvd_layout] = control;
+          r[num].channel[rcvd_layout] = channel;
           eeprom_store(rcvd_layout, num + 90, control);
           eeprom_store(rcvd_layout, num + 94, channel);
-          {
-            byte acknowledgment_array[7] = { 240, 122, 29, 1, 19, 78, 247 };
-            sendUSBSysEx(acknowledgment_array, 7);
-          }
+        }
+        break;
+
+      case 9:
+        { // Set Rotary Encoder Control and Channel
+          byte rcvd_layout = data[6];
+          byte num = data[7];
+          byte control = data[8];
+          byte channel = data[10];
+          r[num - 2].control_hold[rcvd_layout] = control;
+          r[num - 2].channel_hold[rcvd_layout] = channel;
+          eeprom_store(rcvd_layout, num + 92, control);
+          eeprom_store(rcvd_layout, num + 96, channel);
         }
         break;
 
@@ -383,10 +374,6 @@ void onUSBSysEx(uint8_t *data, unsigned int _length) {
           a[num].channel[rcvd_layout] = channel;
           eeprom_store(rcvd_layout, num + 98, control);
           eeprom_store(rcvd_layout, num + 100, channel);
-          {
-            byte acknowledgment_array[7] = { 240, 122, 29, 1, 19, 78, 247 };
-            sendUSBSysEx(acknowledgment_array, 7);
-          }
         }
         break;
 
@@ -396,10 +383,6 @@ void onUSBSysEx(uint8_t *data, unsigned int _length) {
           byte layout = data[8];
           disp.layout[rcvd_layout] = layout;
           eeprom_store(rcvd_layout, 102, layout);
-          {
-            byte acknowledgment_array[7] = { 240, 122, 29, 1, 19, 78, 247 };
-            sendUSBSysEx(acknowledgment_array, 7);
-          }
         }
         break;
 
