@@ -151,6 +151,7 @@ void onUSBSysEx(uint8_t *data, unsigned int _length) {
               delay(2);
               // Retrieve and send LEDs values
             }
+            delay(2);
             for (byte i = 0; i < NUM_LEDS; i += 1) {
               sysex_to_send[5] = 14;
               sysex_to_send[7] = i;
@@ -158,7 +159,8 @@ void onUSBSysEx(uint8_t *data, unsigned int _length) {
               if (ctrl > 128) {
                 sysex_to_send[8] = ctrl - 128;
                 sysex_to_send[9] = 10;
-              } else {
+              } 
+              else {
                 sysex_to_send[8] = ctrl;
                 sysex_to_send[9] = l[i].led_channel[layout_number];
               }
@@ -194,6 +196,7 @@ void onUSBSysEx(uint8_t *data, unsigned int _length) {
 
             // Retrieve and send display values
             sysex_to_send[5] = 18;
+            sysex_to_send[7] = 0;
             sysex_to_send[8] = disp.layout[layout_number];
             sysex_to_send[9] = 1;
             sysex_to_send[10] = 1;
@@ -215,7 +218,7 @@ void onUSBSysEx(uint8_t *data, unsigned int _length) {
 
           // Retrieve and send Options
           for (byte i = 0; i < 2; i++) {
-            sysex_to_send[5] = 17;
+            sysex_to_send[5] = 30;
             sysex_to_send[6] = i;
             sysex_to_send[7] = options[i];
             sendUSBSysEx(sysex_to_send, 12);
@@ -357,8 +360,8 @@ void onUSBSysEx(uint8_t *data, unsigned int _length) {
           byte num = data[7];
           byte control = data[8];
           byte channel = data[10];
-          r[num - 2].control_hold[rcvd_layout] = control;
-          r[num - 2].channel_hold[rcvd_layout] = channel;
+          r[num].control_hold[rcvd_layout] = control;
+          r[num].channel_hold[rcvd_layout] = channel;
           eeprom_store(rcvd_layout, num + 92, control);
           eeprom_store(rcvd_layout, num + 96, channel);
         }
