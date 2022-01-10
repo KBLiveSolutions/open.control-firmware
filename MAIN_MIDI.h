@@ -19,7 +19,10 @@ void sendMessage(byte type, byte control, byte value, byte channel) {
       SERIAL_MIDI.sendControlChange(control, value, channel);
       break;
     case 2:
-      // sendPC(control, channel);
+    if (value == 127){
+      USB_MIDI.sendProgramChange(control, channel);
+      SERIAL_MIDI.sendProgramChange(control, channel);
+    }
       break;
   }
 }

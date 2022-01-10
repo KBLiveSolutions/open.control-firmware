@@ -44,7 +44,7 @@ void onExternalMessageReceived(byte channel, byte control, byte value, byte type
 
 void onSerialControlChange(byte channel, byte control, byte value) {
   if (channel > 13) { // if MIDI In is used as Remote
-    check_led(channel, control, value, HIGH);
+    check_cc(channel, control, value, HIGH);
     check_rotary(channel, control, value);
     check_slider(channel, control, value);
   }

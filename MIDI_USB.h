@@ -1,8 +1,12 @@
-void check_led(byte channel, byte control, byte value, bool serial) {
+void check_cc(byte channel, byte control, byte value, bool serial) {
   for (int i = 0; i < NUM_LEDS; i++) {
     if (l[i].led_control[current_layout] == control) {
       l[i].set_color(value, channel);
       l[i].led_update(b[i].btn_state);
+    }
+    if (i < NUM_SLIDERS) {
+      if (r[i].control[current_layout] == control && !r[i].enc_state) r[i]._value = value;
+      if (a[i].control[current_layout] == control) a[i]._value = value;
     }
     if (!serial) delay(1);
   }
@@ -33,8 +37,7 @@ void check_custom_led() {
 
 
 void onUSBControlChange(byte channel, byte control, byte value) {
-  check_led(channel, control, value, LOW);
-  check_rotary(channel, control, value);
+  check_cc(channel, control, value, LOW);
 }
 
 void onUSBNoteOn(byte channel, byte note, byte vel) {
@@ -69,15 +72,15 @@ void onUSBSysEx(uint8_t *data, unsigned int _length) {
 
       case 1:
         { // Handshake with Editor
-          byte sysexArrayBoot[] = { 240, 122, 29, 1, 19, 68, FIRMWARE_MAJOR_VERSION, FIRMWARE_MINOR_VERSION, 247 };  //String that answers to the MIDI Remote Script for Ableton Live
-          sendUSBSysEx(sysexArrayBoot, 9);
+          byte editor_handshake[] = { 240, 122, 29, 1, 19, 68, FIRMWARE_MAJOR_VERSION, FIRMWARE_MINOR_VERSION, 247 };  //String that answers to the MIDI Remote Script for Ableton Live
+          sendUSBSysEx(editor_handshake, 9);
         }
         break;
 
       case 2:
         { // Handshake with Live
-          byte sysexArrayBoot[] = { 240, 122, 29, 1, 19, 2, 247 };  //String that answers to the MIDI Remote Script for Ableton Live
-          sendUSBSysEx(sysexArrayBoot, 7);
+          byte Live_handshake[] = { 240, 122, 29, 1, 19, 2, 247 };  //String that answers to the MIDI Remote Script for Ableton Live
+          sendUSBSysEx(Live_handshake, 7);
           for (byte i = 0; i < 2; i++) {  // sending the options
             byte _option = options[i];
             byte sysex_array[9] = { 240, 122, 29, 1, 19, 30, i, _option, 247 };
@@ -94,8 +97,8 @@ void onUSBSysEx(uint8_t *data, unsigned int _length) {
         break;
         
      case 5: {   // Live update request
-            byte acknowledgment_array[7] = { 240, 122, 29, 1, 19, 78, 247 };
-            sendUSBSysEx(acknowledgment_array, 7);
+            byte Live_update_request[7] = { 240, 122, 29, 1, 19, 78, 247 };
+            sendUSBSysEx(Live_update_request, 7);
         }
         break;
 
@@ -103,7 +106,7 @@ void onUSBSysEx(uint8_t *data, unsigned int _length) {
 
       case 4:
         { // Dump: Receiving {240, 122, 29, 1, 19, 4} from the Editor send each control 1 by 1 {240, 122, 29, 1, 19, 77, Layout, Control, CC Number, Channel, Type, 247}
-          byte sysex_to_send[12] = { 240, 122, 29, 1, 19, 4, 0, 0, 0, 0, 0, 247 };
+          byte sysex_to_send[12] = { 240, 122, 29, 1, 20, 4, 0, 0, 0, 0, 0, 247 };
           for (byte layout_number = 0; layout_number < NUM_LAYOUT; layout_number++) {
             sysex_to_send[6] = layout_number;
             for (byte i = 0; i < NUM_BUTTONS; i += 1) {

@@ -9,7 +9,7 @@ byte const  row_pins[6] = { 16, 17, 18, 19, 20, 21 };
 #define  MAX_CHAR 20
 int column_data[34] = { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 int _tick = 0;
-int matrix_brightness = 150;
+int matrix_brightness = 0;
 
 class Display {
 private:
@@ -25,7 +25,7 @@ private:
   }
 
 public:
-  int layout[NUM_LAYOUT] = { 0, 1, 4 };
+  int layout[NUM_LAYOUT] = { 0, 1, 4};
   int text_len = 5;
   // int text[MAX_CHAR] = {79, 80, 69, 78, 14, 67, 79, 78, 84, 82, 79, 76};
   // int text[MAX_CHAR] = {96, 97,98, 99, 100, 101, 102, 103, 104};

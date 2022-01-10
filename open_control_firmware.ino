@@ -111,7 +111,7 @@ void setup_display() {
 }
 
 void setup_EEPROM() {
-  EEPROM.begin(512);
+  EEPROM.begin(1024);
   byte _byte;
   for (byte layout_num = 0; layout_num < NUM_LAYOUT; layout_num++) {
     for (byte i = 0; i < NUM_BUTTONS; i++) {
@@ -249,11 +249,13 @@ void loop() {
 long unsigned _now_micro = micros();
 
 void loop1() {
-  if ( (micros() - _now_micro) > 17) {
-    Display_Handler();
-    _now_micro =  micros();
-  }
-  delayMicroseconds(27);
+  // if ( (micros() - _now_micro) > 147) {
+  // if (matrix_brightness > 200)  Display_Handler();
+  //   _now_micro =  micros();
+  // }
+  // if (matrix_brightness < 200)  
+  Display_Handler();
+  if (matrix_brightness > 200)  delayMicroseconds(387);
   if (millis() - _now > scrolling_speed / 2) {
     disp.inc_scroll();
     _now = millis();
