@@ -4,6 +4,13 @@
 #define  toggle_Col 22
 byte const  row_pins[6] = { 16, 17, 18, 19, 20, 21 };
 
+
+bool   showing_page = LOW;
+long unsigned _now_page = millis();
+
+unsigned long scrolling_speed = 200;
+long unsigned _now = millis();
+
 // LED Matrix
 #define MAX_CONCAT 99
 #define  MAX_CHAR 20

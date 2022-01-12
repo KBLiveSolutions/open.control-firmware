@@ -3,6 +3,7 @@
 // ANALOG
 //////////////////////////////
 
+bool pedal_state[NUM_SLIDERS] = {LOW, LOW};
 
 const int a_pins[NUM_SLIDERS] = {A1, A0};
 

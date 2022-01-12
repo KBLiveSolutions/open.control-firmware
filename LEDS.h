@@ -120,3 +120,12 @@ void init_LEDS() {
     delay(1);
   }
 }
+
+void clear_leds() {
+  for (byte i = 0; i < NUM_LEDS; ++i) {
+    l[i].led_off();
+    l[i].r = 0;
+    l[i].g = 0;
+    l[i].b = 0;
+  }
+}

@@ -1,3 +1,9 @@
+bool USB_clock;
+byte USB_thru = 0;
+byte SERIAL_thru = 0;
+
+// =============   GENERIC  ==================
+
 void check_cc(byte channel, byte control, byte value, bool serial) {
   for (int i = 0; i < NUM_LEDS; i++) {
     if (l[i].led_control[current_layout] == control) {
@@ -33,21 +39,11 @@ void check_custom_led() {
   }
 }
 
-// =============   MIDI RECEIVE =================
 
 
-void onUSBControlChange(byte channel, byte control, byte value) {
-  check_cc(channel, control, value, LOW);
-}
-
-void onUSBNoteOn(byte channel, byte note, byte vel) {
-  SERIAL_MIDI.sendNoteOn(note, vel, channel);
-}
-
-void onUSBNoteOff(byte channel, byte note, byte vel) {
-  SERIAL_MIDI.sendNoteOff(note, vel, channel);
-}
 // =============   MIDI SEND =================
+
+// USB
 
 void sendUSBNote(byte control, byte value, byte channel) {
   USB_MIDI.sendNoteOn(control, value, channel);
@@ -64,39 +60,91 @@ void sendUSBSysEx(const uint8_t *data, int _size) {
   USB_MIDI.sendSysEx(_size, data, true);
 }
 
+// SERIAL
 
-void onUSBSysEx(uint8_t *data, unsigned int _length) {
+void sendSerialControlChange(byte control, byte value, byte channel) {
+  SERIAL_MIDI.sendControlChange(control, value, channel);
+}
+
+void sendSerialNote(byte note, byte vel, byte channel) {
+  SERIAL_MIDI.sendNoteOn(note, vel, channel);
+}
+
+void sendSerialPC(byte pc, byte channel) {
+}
+
+void sendSerialSysEx(const uint8_t *data, int _size) {
+  SERIAL_MIDI.sendSysEx(_size, data, true);
+}
+
+
+// =============  EXTERNAL MIDI  =================
+
+
+void onExternalMessageReceived(byte channel, byte control, byte value, byte type) {
+  bool is_Control = LOW;
+  for (byte i = 0; i < NUM_BUTTONS; i++) {  // goes through each Button
+    if (channel == external_MIDI_channel[i] && control == external_MIDI_control[i]  && type == external_MIDI_type[i]) { // checks if the message received is an externem_MIDI control/channel
+      is_Control = HIGH;
+      if (value > 0) b[i].ext_MIDI_On = HIGH;
+      else b[i].ext_MIDI_On = LOW;
+    }
+  }
+  for (byte i = 0; i < NUM_SLIDERS; i++) {
+    is_Control = HIGH;
+    if (channel == external_MIDI_channel[i + NUM_BUTTONS] && control == external_MIDI_control[i + NUM_BUTTONS]) {
+      sendUSBControlChange(a[i].control[current_layout], value, a[i].channel[current_layout]);
+    }
+  }
+  if (!is_Control) {
+     if (type == 0) sendSerialNote(control, value, channel);
+     if (type == 1) sendSerialControlChange(control, value, channel);
+     if (type == 2) sendSerialPC(control, channel);
+  }
+}
+
+
+// =============   MIDI RECEIVE =================
+
+
+void onUSBControlChange(byte channel, byte control, byte value) {
+  check_cc(channel, control, value, LOW);
+}
+
+void onUSBNoteOn(byte channel, byte note, byte vel) {
+  SERIAL_MIDI.sendNoteOn(note, vel, channel);
+}
+
+void onUSBNoteOff(byte channel, byte note, byte vel) {
+  SERIAL_MIDI.sendNoteOff(note, vel, channel);
+}
+
+void onSerialControlChange(byte channel, byte control, byte value) {
+  if (channel > 13) { // if MIDI In is used as Remote
+    check_cc(channel, control, value, HIGH);
+    check_rotary(channel, control, value);
+    check_slider(channel, control, value);
+  }
+  else onExternalMessageReceived(channel, control, value, 1); // if MIDI In is used as External MIDI
+}
+
+void onSerialNoteOn(byte channel, byte note, byte vel) {
+  onExternalMessageReceived(channel, note, vel, 0);
+}
+
+// =============   SYSEX  =================
+
+void onSysEx(uint8_t *data, unsigned int _length, bool midiUSB) {
   if (data[1] == 122 && data[2] == 29 && data[3] == 1 && data[4] == 19) {
     switch (data[5]) {
-      // Connect Disconnect
-
-      case 1:
+       case 1:
         { // Handshake with Editor
           byte editor_handshake[] = { 240, 122, 29, 1, 19, 68, FIRMWARE_MAJOR_VERSION, FIRMWARE_MINOR_VERSION, 247 };  //String that answers to the MIDI Remote Script for Ableton Live
           sendUSBSysEx(editor_handshake, 9);
         }
         break;
-
-      case 2:
-        { // Handshake with Live
-          byte Live_handshake[] = { 240, 122, 29, 1, 19, 2, 247 };  //String that answers to the MIDI Remote Script for Ableton Live
-          sendUSBSysEx(Live_handshake, 7);
-          for (byte i = 0; i < 2; i++) {  // sending the options
-            byte _option = options[i];
-            byte sysex_array[9] = { 240, 122, 29, 1, 19, 30, i, _option, 247 };
-            sendUSBSysEx(sysex_array, 9);
-          }
-        }
-        break;
-
-      case 3: {   // Disconnect message received
-          int disconnect_text[5] = { 13, 13, 13, 13, 13};
-          disp.build_text(5, disconnect_text);
-          init_LEDS();
-        }
-        break;
         
-     case 5: {   // Live update request
+       case 5: {   // Live update request
             byte Live_update_request[7] = { 240, 122, 29, 1, 19, 78, 247 };
             sendUSBSysEx(Live_update_request, 7);
         }
@@ -460,7 +508,34 @@ void onUSBSysEx(uint8_t *data, unsigned int _length) {
           // sendSerialSysEx(data_array, 9);
         }
         break;
+  
+      
+      
+      // Connect Disconnect
 
+
+      case 2:
+        { // Handshake with Live
+          byte Live_handshake[] = { 240, 122, 29, 1, 19, 2, 247 };  //String that answers to the MIDI Remote Script for Ableton Live
+          if (midiUSB) sendUSBSysEx(Live_handshake, 7);
+          else sendSerialSysEx(Live_handshake, 7);
+          
+          for (byte i = 0; i < 2; i++) {  // sending the options
+            byte _option = options[i];
+            byte sysex_array[9] = { 240, 122, 29, 1, 19, 30, i, _option, 247 };
+            if (midiUSB) sendUSBSysEx(sysex_array, 9);
+            else sendSerialSysEx(sysex_array, 9);
+          }
+        }
+        break;
+
+      case 3: {   // Disconnect message received
+          int disconnect_text[5] = { 13, 13, 13, 13, 13};
+          disp.build_text(5, disconnect_text);
+          init_LEDS();
+        }
+        break;
+        
 
       // receive Data from Live
 
@@ -482,11 +557,11 @@ void onUSBSysEx(uint8_t *data, unsigned int _length) {
 
       case 51:
         { // Text received
-          byte text_len = data[7];  //min(MAX_CHAR, data[7]);
+          byte text_len = _length-8;
           if (data[6] == disp.layout[current_layout]) {
-            disp.text_len = data[7];
+            disp.text_len = text_len;
             for (byte i = 0; i < text_len; i++) {
-              disp.data_text[i] = data[8 + i];
+              disp.data_text[i] = data[7 + i];
             }
           }
           if (!showing_page) disp.build_text(disp.text_len, disp.data_text);
@@ -495,9 +570,9 @@ void onUSBSysEx(uint8_t *data, unsigned int _length) {
 
       case 54:
         { // Direct Text received
-          byte text_len = data[7];
+          byte text_len = _length-8;
           for (byte i = 0; i < text_len; i++) {
-            disp.temp_text[i] = data[8 + i];
+            disp.temp_text[i] = data[7 + i];
           }
           disp.build_text(text_len, disp.temp_text);
           showing_page = HIGH;
@@ -533,7 +608,59 @@ void onUSBSysEx(uint8_t *data, unsigned int _length) {
           sendUSBNote(note, 0, chnl);
         }
         break;
-
     }
+  }
+}
+
+
+void onUSBSysEx(uint8_t *data, unsigned int _length) {
+  onSysEx(data, _length, HIGH);
+}
+
+
+void onSerialSysEx(uint8_t *data, unsigned int _length) {
+  onSysEx(data, _length, LOW);
+}
+
+// =============   CLOCK  ==================
+
+// BLINK
+
+byte _clock = 0;
+
+void clock_received() {
+  for (byte i = 0; i < NUM_LEDS; i++) {
+    if (l[i].led_channel[current_layout] == 15) l[i].blink_slow(_clock);
+    else if (l[i].led_channel[current_layout] == 14) l[i].blink_fast(_clock);
+  }
+  _clock += 1;
+  if (_clock == 4 ) _clock = 0;
+}
+
+// FADE
+
+void clock_continue() {
+  _clock = 0;
+}
+
+void clock_start() {
+  _clock = 0;
+  for (byte i = 0; i < NUM_LEDS; i++) {
+    l[i].show_color();
+    delay(1);
+  }
+}
+
+void clock_stop() {
+  for (byte i = 0; i < NUM_LEDS; i++) {
+    l[i].show_color();
+    delay(1);
+  }
+}
+
+void clock_start_serial() {
+  _clock = 0;
+  for (byte i = 0; i < NUM_LEDS; i++) {
+    l[i].show_color();
   }
 }

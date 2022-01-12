@@ -4,6 +4,7 @@
 
 // const int b_pins[NUM_BUTTONS] = {2, 3, 4, 5, 6, 7, 13, 14};    // Pin number for buttons 1 to 8 (buttons 7 & 8 are the Encoders buttons)
 
+const int b_pins[NUM_BUTTONS] = {2, 3, 4, 5, 6, 7, 13, 14};    // Pin number for buttons 1 to 8 (buttons 7 & 8 are the Encoders buttons)
 
 class NewButton : public OneButton {
   private:

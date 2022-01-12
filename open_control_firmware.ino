@@ -20,7 +20,7 @@
 
 #include <Arduino.h>
 #include <Adafruit_TinyUSB.h>
-#include "RPi_Pico_TimerInterrupt.h"
+#include <OneButton.h>
 #include <EEPROM.h>
 #include <MIDI.h>
 Adafruit_USBD_MIDI usb_midi;
@@ -36,28 +36,15 @@ MIDI_CREATE_INSTANCE(HardwareSerial, Serial1, SERIAL_MIDI);
 #define NUM_LAYOUT 3
 #define NUM_OPTIONS 10
 
-#include <OneButton.h>
-const int b_pins[NUM_BUTTONS] = {2, 3, 4, 5, 6, 7, 13, 14};    // Pin number for buttons 1 to 8 (buttons 7 & 8 are the Encoders buttons)
-
-bool   showing_page = LOW;
-long unsigned _now_page = millis();
-byte current_layout = 0;
-unsigned long scrolling_speed = 200;
-long unsigned _now = millis();
-int i = 0;
-byte options[NUM_OPTIONS];
-byte _clock = 0;
-bool pedal_state[NUM_SLIDERS] = {LOW, LOW};
 
 #include "TABLES.h"
 #include "LEDS.h"
 #include "DISPLAY.h"
-#include "MAIN_MIDI.h"
+#include "VARIOUS.h"
 #include "BUTTONS.h"
 #include "ANALOG.h"
 #include "ROTARY.h"
-#include "MIDI_USB.h"
-#include "MIDI_SERIAL.h"
+#include "MIDI.h"
 
 void setup_Buttons(){
   for (int i=0; i<NUM_BUTTONS; i++){
@@ -70,8 +57,6 @@ void setup_Buttons(){
 }
 
 void setup_MIDI() {
-  //   // these two string must be exactly 32 chars long
-  //   //                                   01234567890123456789012345678912
   USBDevice.setManufacturerDescriptor("KB Live Solutions");
   USBDevice.setProductDescriptor("open·control");
 
@@ -218,16 +203,17 @@ void clear_EEPROM() {
   }
 }
 
+int iter = 0;
 void Check_User_Input() {
-  if (b[i].ext_MIDI_On){
-    b[i].tick(b[i].ext_MIDI_On);  // standard button check   
+  if (b[iter].ext_MIDI_On){
+    b[iter].tick(b[iter].ext_MIDI_On);  // standard button check   
   }
-  else b[i].tick();  // standard button check
-  b[i].button_check(!b[i].isIdle());  // button check for snap
-  if (i < NUM_SLIDERS) a[i].check_pot();
-  r[i % 2].update_rotary();
-  i++;
-  if (i == NUM_BUTTONS) i = 0;
+  else b[iter].tick();  // standard button check
+  b[iter].button_check(!b[iter].isIdle());  // button check for snap
+  if (iter < NUM_SLIDERS) a[iter].check_pot();
+  r[iter % 2].update_rotary();
+  iter++;
+  if (iter == NUM_BUTTONS) iter = 0;
 }
 
 void setup() {
@@ -249,13 +235,8 @@ void loop() {
 long unsigned _now_micro = micros();
 
 void loop1() {
-  // if ( (micros() - _now_micro) > 147) {
-  // if (matrix_brightness > 200)  Display_Handler();
-  //   _now_micro =  micros();
-  // }
-  // if (matrix_brightness < 200)  
   Display_Handler();
-  if (matrix_brightness > 200)  delayMicroseconds(387);
+  if (matrix_brightness < 20)  delayMicroseconds(37);
   if (millis() - _now > scrolling_speed / 2) {
     disp.inc_scroll();
     _now = millis();

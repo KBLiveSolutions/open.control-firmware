@@ -1,15 +1,26 @@
 
+byte current_layout = 0;
+byte options[NUM_OPTIONS] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+;
+
 // Factory default button values for Pages 1 to 3. Overriden as soon as they are changed with the Web Editor
 byte default_short[3][NUM_BUTTONS] = {{13, 1, 2, 11, 14, 15, 56, 57}, {22, 24, 26, 11, 18, 19, 56, 57}, {103, 1, 7, 6, 9, 8, 56, 57}};
 byte default_long[3][NUM_BUTTONS] = {{17, 104, 41, 43, 4, 40, 56, 57}, {0, 55, 20, 21, 4, 40, 56, 57}, {42, 41, 102, 10, 4, 40, 56, 57}};
 byte default_double[3][NUM_BUTTONS] = {{16, 75, 76, 5, 105, 106, 56, 57}, {23, 27, 11, 5, 18, 19, 56, 57}, {74, 75, 76, 5, 38, 39, 56, 57}};
 
-int default_leds [3][6] = {{13, 1, 26, 11, 18, 19}, {22, 24, 26, 25, 18, 19}, {42, 1, 7, 6, 38, 39}};
+int default_leds [3][6] = {{13, 1, 26, 11, 14, 15}, {22, 24, 26, 25, 18, 19}, {42, 1, 7, 6, 38, 39}};
 
 byte default_rotary [3][2] = {{89, 73}, {91, 73}, {99, 83}};
 byte default_rotary_hold [3][2] = {{90, 87}, {96, 101}, {101, 84}};
 
 byte default_sliders [3][2] = {{0, 0}, {0, 0}, {0, 0}};
+
+
+byte external_MIDI_control[NUM_BUTTONS + NUM_SLIDERS] = {1, 2, 3, 4, 5, 6, 1, 1};
+byte external_MIDI_channel[NUM_BUTTONS + NUM_SLIDERS] = {1, 1, 1, 1, 1, 1, 1, 1};
+byte external_MIDI_type[NUM_BUTTONS + NUM_SLIDERS] = {0, 0, 0, 0, 0, 0, 0, 0};
+
+
         
 int font_5x7[106][3] = {
   { 0x00, 0x00, 0x00 },  //
