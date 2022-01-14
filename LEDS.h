@@ -63,6 +63,11 @@ class Led {
       pixels.setPixelColor(num, r * 2, g * 2, b * 2);
       pixels.show();
     }
+    
+    void show_direct_color(int r, int g, int b) {
+      pixels.setPixelColor(num, r * 2, g * 2, b * 2);
+      pixels.show();
+    }
 
     void show_color_fade(int fade_amount) {
       USB_MIDI.sendControlChange(2, fade_amount, 2);

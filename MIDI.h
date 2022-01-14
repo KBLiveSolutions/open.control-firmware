@@ -499,6 +499,12 @@ void onSysEx(uint8_t *data, unsigned int _length, bool midiUSB) {
         }
         break;
 
+      case 28:
+        { 
+          int num = data[6];
+          l[num].show_direct_color(data[7], data[8], data[9]);
+        }
+
       case 30:
         { // Options
           options[data[6]] =  data[7];
