@@ -4,7 +4,6 @@
 //////////////////////////////
 
 bool pedal_state[NUM_SLIDERS] = {LOW, LOW};
-
 const int a_pins[NUM_SLIDERS] = {A1, A0};
 
 class AnalogPot {
@@ -90,11 +89,11 @@ class AnalogPot {
       value = constrain(value, 0, 255);
       if (min_or_max == 0) {
         pedal_min = value;
-        raw_eeprom_store(360 + num, value);
+     //   raw_eeprom_store(360 + num, value);
       }
       else {
         pedal_max = value;
-        raw_eeprom_store(362 + num, value);
+     //   raw_eeprom_store(362 + num, value);
       }
     }
 

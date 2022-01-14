@@ -135,3 +135,13 @@ void longClickcallBack(void *p) {
 void doubleClickcallBack(void *p) {
   ((NewButton *) p)->doubleClick();
 }
+
+void setup_Buttons(){
+  for (int i=0; i<NUM_BUTTONS; i++){
+  b[i].attachSimple(simpleClickcallBack);
+  b[i].attachLong(longClickcallBack);
+  b[i].attachDouble(doubleClickcallBack);
+  b[i].setClickTicks(150);
+  b[i].setDebounceTicks(20);
+  }
+}

@@ -116,3 +116,16 @@ void Display_Handler()
   if (_tick == 34) _tick = 0;
   disp.show_char(_tick);
 }
+
+
+void setup_display() {
+  pinMode(latch_Col, OUTPUT);
+  pinMode(clock_Col, OUTPUT);
+  pinMode(data_Col, OUTPUT);
+  pinMode(toggle_Col, OUTPUT);
+  for (int i = 0; i < 6; i++) {
+    pinMode(row_pins[i], OUTPUT);
+  }
+  int init_text[5] = { 79, 80, 105, 67, 79 };
+  disp.build_text(5, init_text);
+}
