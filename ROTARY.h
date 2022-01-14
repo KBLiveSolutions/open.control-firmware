@@ -11,8 +11,6 @@ class Rotary {
     int pin_A;
     int pin_B;
     int pos = 0;
-    byte default_rotary [3][2] = {{59, 60}, {61, 62}, {63, 64}};
-    byte default_rotary_hold [3][2] = {{89, 90}, {73, 37}, {99, 88}};
 
   public:
     Rotary(int num) : encoder(rotA_pin[num], rotB_pin[num], RotaryEncoder::LatchMode::FOUR3) {
@@ -39,9 +37,9 @@ class Rotary {
       int newPos = encoder.getPosition();
       if (pos != newPos) {
         enc_state = HIGH;
-        if (b[6 + number].held) {
+        if (b[6 + number].btn_state) {
           int newValue = _value_hold;
-          b[6 + number].latch = HIGH;
+       //   b[6 + number].latch = HIGH;
           if (int(encoder.getDirection()) > 0) {
             if ((millis() - _now) < 25) _value_hold = _value_hold + 4;
             else _value_hold++;

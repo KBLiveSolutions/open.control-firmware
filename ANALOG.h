@@ -3,7 +3,7 @@
 // ANALOG
 //////////////////////////////
 
-
+bool pedal_state[NUM_SLIDERS] = {LOW, LOW};
 const int a_pins[NUM_SLIDERS] = {A1, A0};
 
 class AnalogPot {
@@ -14,7 +14,6 @@ class AnalogPot {
     static const int RunningAverageCount = 30;
     float RunningAverageBuffer[RunningAverageCount];
     int NextRunningAverage;
-    byte default_sliders [3][2] = {{73, 59}, {61, 62}, {61, 62}};
     int other_pedal;
 
   public:
@@ -47,49 +46,42 @@ class AnalogPot {
 
 
     void check_pot() {
-      int reading  = average(analogRead(pin) / 16); // reads button pin state
-      // Debounces button
-      if ((millis() - lastDebounceTime) > debounceDelayAnalog) {
-        if (reading > lastValue + margin || reading < lastValue - margin) {
-          lastDebounceTime = millis();
-          if (!slider_state){
-            if (abs(analog_to_MIDI(lastValue) - _value) < 5){
-              slider_state = HIGH;
-              l[4+number].show_green();
-              slider_on_time = millis();
+      if (control[current_layout] > 0) {
+        int reading  = average(analogRead(pin) / 16); // reads button pin state
+        // Debounces button
+        if ((millis() - lastDebounceTime) > debounceDelayAnalog) {
+          if (reading > lastValue + margin || reading < lastValue - margin) {
+            lastDebounceTime = millis();
+            if (!slider_state) {
+              if (abs(analog_to_MIDI(lastValue) - _value) < 5) {
+                slider_state = HIGH;
+                l[4 + number].show_green();
+                slider_on_time = millis();
+              }
             }
+            else {
+              if ((millis() - slider_on_time) > 500) l[4 + number].show_color();
+              process_analog(analog_to_MIDI(lastValue));
+            }
+            lastValue = reading;
           }
-          else {
-            if ((millis() - slider_on_time) > 500) l[4+number].show_color();
-            process_analog(analog_to_MIDI(lastValue));
-          }
-          lastValue = reading;
         }
-      }
-      if (reading != lastReading) {
-       // process_analog(analog_to_MIDI(lastValue));
-      }
+        if (reading != lastReading) {
+          // process_analog(analog_to_MIDI(lastValue));
+        }
         lastReading = reading;
+
+      }
     }
 
 
 
     void process_analog(int value_MIDI) {
-      // if (pedal_state[number]) {
       if ((lastMIDIValue != value_MIDI)) {
         lastMIDIValue = value_MIDI;
         USB_MIDI.sendControlChange(control[current_layout], value_MIDI, channel[current_layout]);
         SERIAL_MIDI.sendControlChange(control[current_layout], value_MIDI, channel[current_layout]);
       }
-      /*    }
-          else {
-            if (lastValue + 1 < value_MIDI ||  value_MIDI < lastValue - 1) {
-              lastValue = value_MIDI;
-              pedal_state[number] = HIGH;
-              USB_MIDI.sendControlChange(control[current_layout], int(value_MIDI), channel[current_layout]);
-              SERIAL_MIDI.sendControlChange(control[current_layout], int(value_MIDI), channel[current_layout]);
-            }
-          }*/
     }
 
     void _calibrate( int num, int min_or_max) {
@@ -97,11 +89,11 @@ class AnalogPot {
       value = constrain(value, 0, 255);
       if (min_or_max == 0) {
         pedal_min = value;
-        raw_eeprom_store(360 + num, value);
+     //   raw_eeprom_store(360 + num, value);
       }
       else {
         pedal_max = value;
-        raw_eeprom_store(362 + num, value);
+     //   raw_eeprom_store(362 + num, value);
       }
     }
 
