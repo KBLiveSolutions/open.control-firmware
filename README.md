@@ -2,14 +2,14 @@
 
 # open·control firmware
 
-Version 1.0
+Version 1.1
 
 ## To install :
 
-- Download the file **open_control_firmware.ino.uf2**
+- Download the file **open_control_firmware_1.1.ino.uf2**
 - Connect open·control ***while holding Button 1***. 
 - A flash drive named **RPI-RP2** will appear.  
-- Drag and drop the file **open_control_firmware.ino.uf2** inside it.  
+- Drag and drop the **.uf2** file inside it.  
 - The board will reboot with the new firmware installed.  
 
 ## To modify:
@@ -60,16 +60,18 @@ For the LEDs, the only type available is Control Change. Thus we have
 
 |      Page 1   | Type           |  Control      |  Channel   |
 |---|---|---|---|
-| LED           |  Note, CC, PC  |    0 to 127   |  1 to 16   |
+| LED           |  CC  |    0 to 127   |  1 to 16   |
 
 
 |      Page 2   | Type           |  Control      |  Channel   |
 |---|---|---|---|
-| LED           |  Note, CC, PC  |    0 to 127   |  1 to 16   |
+| LED           |  CC  |    0 to 127   |  1 to 16   |
 
 
 |      Page 3   | Type           |  Control      |  Channel   |
 |---|---|---|---|
-| LED           |  Note, CC, PC  |    0 to 127   |  1 to 16   |
+| LED           |  CC  |    0 to 127   |  1 to 16   |
 
+When opencontrol receives a CC message, it is compared to the CC number of each LED for the current page.
+If it is similar, then the value received lights up the LED to the corresponding color.
 
