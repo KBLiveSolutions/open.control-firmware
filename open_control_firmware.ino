@@ -76,7 +76,7 @@ void loop() {
   Check_User_Input();
 }
 
-// long unsigned _now_micro = micros();
+
 void loop1() {
   Display_Handler();
   if (matrix_brightness < 20)  delayMicroseconds(37);

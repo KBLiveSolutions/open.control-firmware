@@ -74,8 +74,6 @@ class AnalogPot {
       }
     }
 
-
-
     void process_analog(int value_MIDI) {
       if ((lastMIDIValue != value_MIDI)) {
         lastMIDIValue = value_MIDI;
