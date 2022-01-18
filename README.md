@@ -34,18 +34,21 @@ Each of these presses can send either Note, Control Change, or Program Change me
 Thus, for 1 button, we have:
 
 |      Page 1   | Type           |  Control      |  Channel   |
+|--------|------|---------|---------|
 |  Short Press  |  Note, CC, PC  |    0 to 127   |  1 to 16   |
 |  Long Press   |  Note, CC, PC  |    0 to 127   |  1 to 16   |
 |  Double Press |  Note, CC, PC  |    0 to 127   |  1 to 16   |
 
 
 |      Page 2   | Type           |  Control      |  Channel   |
+|--------|------|---------|---------|
 |  Short Press  |  Note, CC, PC  |    0 to 127   |  1 to 16   |
 |  Long Press   |  Note, CC, PC  |    0 to 127   |  1 to 16   |
 |  Double Press |  Note, CC, PC  |    0 to 127   |  1 to 16   |
 
 
 |      Page 3   | Type           |  Control      |  Channel   |
+|--------|------|---------|---------|
 |  Short Press  |  Note, CC, PC  |    0 to 127   |  1 to 16   |
 |  Long Press   |  Note, CC, PC  |    0 to 127   |  1 to 16   |
 |  Double Press |  Note, CC, PC  |    0 to 127   |  1 to 16   |
@@ -56,14 +59,17 @@ Thus, for 1 button, we have:
 For the LEDs, the only type available is Control Change. Thus we have
 
 |      Page 1   | Type           |  Control      |  Channel   |
+|---|---|---|---|
 | LED           |  Note, CC, PC  |    0 to 127   |  1 to 16   |
 
 
 |      Page 2   | Type           |  Control      |  Channel   |
+|---|---|---|---|
 | LED           |  Note, CC, PC  |    0 to 127   |  1 to 16   |
 
 
 |      Page 3   | Type           |  Control      |  Channel   |
+|---|---|---|---|
 | LED           |  Note, CC, PC  |    0 to 127   |  1 to 16   |
 
 
