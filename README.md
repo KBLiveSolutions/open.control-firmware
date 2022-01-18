@@ -27,6 +27,9 @@ You also need to install the [Earle Philhower Arduino port for the RP2040](url=h
 
 # Concept
 
+MIDI Channels 11 to 16 are reserved for the **Control Surface script**.
+Channels 1 to 10 are freely assignable through the **Custom MIDI** actions.
+
 ## Buttons
 
 Each button can send Short, Long and Double presses thanks to the OneButton library.
