@@ -253,6 +253,14 @@ void onSysEx(uint8_t *data, unsigned int _length, bool midiUSB) {
             sysex_to_send[10] = 1;
             sendUSBSysEx(sysex_to_send, 12);
             delay(2);
+
+            sysex_to_send[5] = 24;
+            sysex_to_send[7] = 0;
+            sysex_to_send[8] = linked_page[layout_number];
+            sysex_to_send[9] = 1;
+            sysex_to_send[10] = 1;
+            sendUSBSysEx(sysex_to_send, 12);
+            delay(2);
           }
 
           // Retrieve and send External MIDI values
@@ -474,6 +482,15 @@ void onSysEx(uint8_t *data, unsigned int _length, bool midiUSB) {
           pixels.setBrightness(BRIGHTNESS);
           pixels.show();
           raw_eeprom_store(341, BRIGHTNESS);
+        }
+        break;
+        
+      case 24:
+        { // Sets Linked page
+          linked_page[data[6]] = data[7];
+          byte data_array[9] = { 240, 122, 29, 1, 19, 24, data[6], data[7], 247};
+          sendUSBSysEx(data_array, 9);
+          raw_eeprom_store(304+data[6], data[7]);
         }
         break;
 
