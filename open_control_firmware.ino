@@ -16,7 +16,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
 
 #define FIRMWARE_MAJOR_VERSION 1
-#define FIRMWARE_MINOR_VERSION 1
+#define FIRMWARE_MINOR_VERSION 2
 
 #include <Arduino.h>
 #include <Adafruit_TinyUSB.h>

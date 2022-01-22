@@ -1,7 +1,7 @@
-
 byte current_layout = 0;
 byte options[NUM_OPTIONS] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-;
+byte linked_page[NUM_LAYOUT] = {0, 0, 0};
+
 
 // Factory default button values for Pages 1 to 3. Overriden as soon as they are changed with the Web Editor
 byte default_short[3][NUM_BUTTONS] = {{13, 1, 2, 11, 14, 15, 56, 57}, {22, 24, 26, 11, 18, 19, 56, 57}, {103, 1, 7, 6, 9, 8, 56, 57}};

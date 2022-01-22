@@ -61,8 +61,15 @@ void setup_EEPROM() {
       _byte = EEPROM.read(layout_num * 100 + 100 + i);
       if (_byte != 255) a[i].channel[layout_num] = _byte;
     }
+    
     _byte = EEPROM.read(layout_num * 100 + 102);
     if (_byte != 255) disp.layout[layout_num] = _byte;
+    
+    _byte = EEPROM.read(layout_num + 304);
+    if (_byte != 255) linked_page[layout_num] = _byte;
+    byte data_array[9] = { 240, 122, 29, 1, 19, 24, layout_num, linked_page[layout_num], 247};
+    sendUSBSysEx(data_array, 9);
+    sendSerialSysEx(data_array, 9);
   }
 
   for (byte i = 0; i < 2; i++) {
