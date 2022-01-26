@@ -248,7 +248,7 @@ void onSysEx(uint8_t *data, unsigned int _length, bool midiUSB) {
             // Retrieve and send display values
             sysex_to_send[5] = 18;
             sysex_to_send[7] = 0;
-            sysex_to_send[8] = disp.layout[layout_number];
+            sysex_to_send[8] = disp.display_control[layout_number];
             sysex_to_send[9] = 1;
             sysex_to_send[10] = 1;
             sendUSBSysEx(sysex_to_send, 12);
@@ -443,7 +443,7 @@ void onSysEx(uint8_t *data, unsigned int _length, bool midiUSB) {
         { // Sets Display Controls
           byte rcvd_layout = data[6];
           byte layout = data[8];
-          disp.layout[rcvd_layout] = layout;
+          disp.display_control[rcvd_layout] = layout;
           eeprom_store(rcvd_layout, 102, layout);
         }
         break;
@@ -549,6 +549,12 @@ void onSysEx(uint8_t *data, unsigned int _length, bool midiUSB) {
             if (midiUSB) sendUSBSysEx(sysex_array, 9);
             else sendSerialSysEx(sysex_array, 9);
           }
+
+          for (byte i = 0; i < NUM_LAYOUT; i++) {  // sending the linked_pages
+            byte data_array[9] = { 240, 122, 29, 1, 19, 24, i, linked_page[i], 247};
+            if (midiUSB) sendUSBSysEx(data_array, 9);
+            else sendSerialSysEx(data_array, 9);
+          }
         }
         break;
 
@@ -581,7 +587,7 @@ void onSysEx(uint8_t *data, unsigned int _length, bool midiUSB) {
       case 51:
         { // Text received
           byte text_len = _length-8;
-          if (data[6] == disp.layout[current_layout]) {
+          if (data[6] == disp.display_control[current_layout]) {
             disp.text_len = text_len;
             for (byte i = 0; i < text_len; i++) {
               disp.data_text[i] = data[7 + i];

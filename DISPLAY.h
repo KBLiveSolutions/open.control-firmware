@@ -32,7 +32,7 @@ private:
   }
 
 public:
-  int layout[NUM_LAYOUT] = { 0, 1, 4};
+  int display_control[NUM_LAYOUT] = { 0, 1, 4};
   int text_len = 5;
   // int text[MAX_CHAR] = {79, 80, 69, 78, 14, 67, 79, 78, 84, 82, 79, 76};
   // int text[MAX_CHAR] = {96, 97,98, 99, 100, 101, 102, 103, 104};
