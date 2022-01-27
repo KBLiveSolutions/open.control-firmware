@@ -69,7 +69,7 @@ public:
   void inc_scroll() {
     scroller_temp++;
     if (scroller_temp > 5 && index > MAX_CHAR && !scrolled) scroller++;
-    if (scroller > (index - 32)) {
+    if (scroller > (index - 26)) {
       scroller_temp = 0;
       scroller = 0;
       scrolled = HIGH;
