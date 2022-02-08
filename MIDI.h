@@ -39,8 +39,6 @@ void check_custom_led() {
   }
 }
 
-
-
 // =============   MIDI SEND =================
 
 // USB
@@ -569,8 +567,8 @@ void onSysEx(uint8_t *data, unsigned int _length, bool midiUSB) {
       // receive Data from Live
 
       case 40:
-        { // Layout Value received
-          clear_leds();
+        { // Page change received
+          clear_leds(midiUSB);
           disp.clear_text();
           current_layout = data[6];
           int page_text[MAX_CHAR] = { 48, 65, 71, 69, 0, (current_layout + 17) };
@@ -622,6 +620,9 @@ void onSysEx(uint8_t *data, unsigned int _length, bool midiUSB) {
               }
               if (b[i].long_ch[layout] == chnl && b[i].long_type[layout] == type) {
                 b[i].long_control[layout] = note;
+              }
+              if (b[i].double_ch[layout] == chnl && b[i].double_type[layout] == type) {
+                b[i].double_control[layout] = note;
               }
             }
           }

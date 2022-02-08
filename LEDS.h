@@ -126,11 +126,12 @@ void init_LEDS() {
   }
 }
 
-void clear_leds() {
+void clear_leds(bool midiUSB) {
   for (byte i = 0; i < NUM_LEDS; ++i) {
-    l[i].led_off();
     l[i].r = 0;
     l[i].g = 0;
     l[i].b = 0;
+    l[i].show_color();
+    if (midiUSB) delay(1);
   }
 }
