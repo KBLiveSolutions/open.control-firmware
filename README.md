@@ -2,11 +2,12 @@
 
 # open·control firmware
 
-Version 1.2
+Version 1.3  
+Changelog [here](https://github.com/KBLiveSolutions/open.control/discussions/6)
 
 ## To install :
 
-- Download the file **open_control_firmware_1.2.ino.uf2**
+- Download the file **open_control_firmware_1.3.ino.uf2**
 - Connect open·control ***while holding Button 1***. 
 - A flash drive named **RPI-RP2** will appear.  
 - Drag and drop the **.uf2** file inside it.  
