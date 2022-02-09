@@ -22,8 +22,11 @@ class AnalogPot {
       pin = a_pins[number];
       if (number == 0) other_pedal = 1;
       else other_pedal = 0;
+      for (int i = 0 ; i < NUM_LAYOUT ; i++) {  // Sets button default values
+        control[i] = default_sliders[i][number];
+      }
     }
-    byte control[NUM_LAYOUT] = {default_sliders[0][0], default_sliders[1][0], default_sliders[2][0]};
+    byte control[NUM_LAYOUT];
     byte channel[NUM_LAYOUT] = {16, 16, 16};
     int value_MIDI = 0;
     byte lastValue = 0;
