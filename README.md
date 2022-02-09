@@ -2,7 +2,7 @@
 
 # open·control firmware
 
-Version 1.3
+Version 1.3  
 Changelog [here](https://github.com/KBLiveSolutions/open.control/discussions/6)
 
 ## To install :
