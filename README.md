@@ -16,7 +16,7 @@ Changelog [here](https://github.com/KBLiveSolutions/open.control/discussions/6)
 **- Boxed :**
 If you don't have any pedal to plug to switch Input 1, you can connect any mono Jack with the end wrapped with tinfoil as shown on the picture below.
 
-![./docs/boxed_tinfoil.jpeg]
+![Boxed with tinfoil](./docs/boxed_tinfoil.jpeg)
 
 **- Maker :**
 If you don't have soldered buttons, you can press the mini-switch next to the MCU while plugging the USB cable.
