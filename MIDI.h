@@ -32,7 +32,7 @@ void check_slider(byte channel, byte control, byte value) {
 
 void check_custom_led() {
   for (int i = 0; i < NUM_LEDS; i++) {
-    if (l[i].led_control[current_layout] > 128) {
+    if (l[i].led_control[current_layout] >= 128) {
       l[i].set_color(l[i].led_control[current_layout] - 128, 16);
       l[i].led_update(b[i].btn_state);
     }
@@ -519,6 +519,7 @@ void onSysEx(uint8_t *data, unsigned int _length, bool midiUSB) {
           int num = data[6];
           l[num].show_direct_color(data[7], data[8], data[9]);
         }
+        break;
 
       case 30:
         { // Options
