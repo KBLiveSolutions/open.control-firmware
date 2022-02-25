@@ -13,8 +13,8 @@ int default_leds [3][6] = {{13, 1, 2, 11, 14, 15}, {22, 24, 26, 25, 18, 19}, {42
 byte default_rotary [3][2] = {{89, 73}, {91, 73}, {99, 83}};
 byte default_rotary_hold [3][2] = {{90, 87}, {96, 101}, {101, 84}};
 
-// byte default_sliders [3][2] = {{0, 0}, {0, 0}, {0, 0}};
-byte default_sliders [3][2] = {{89, 90}, {91, 96}, {73, 37}};
+byte default_sliders [3][2] = {{0, 0}, {0, 0}, {0, 0}};
+// byte default_sliders [3][2] = {{89, 90}, {91, 96}, {73, 37}};
 
 
 byte external_MIDI_control[NUM_BUTTONS + NUM_SLIDERS] = {1, 2, 3, 4, 5, 6, 7, 8};

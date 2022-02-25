@@ -22,3 +22,28 @@ If you don't have any pedal to plug to switch Input 1, you can connect any mono 
 If you don't have soldered buttons, you can press the mini-switch next to the MCU while plugging the USB cable.
 
 More info on the [open·control Wiki(url=https://github.com/KBLiveSolutions/open.control/wiki)]
+
+## To change the code :
+1. install the Arduino software : https://www.arduino.cc/en/software
+2. Open Arduino and go to File->Preferences.
+3. In the dialog that pops up, enter the following URL in the "Additional Boards Manager URLs" field:
+https://github.com/earlephilhower/arduino-pico/releases/download/global/package_rp2040_index.json
+![Capture d’écran 2022-02-24 à 08.23.15.png]
+4. go to Sketck-> Include Library and click on Manage Libraries...
+5. In the window search field, find and install the following libraries :
+    1. Adafruit_TinyUSB (if it asks to install other libraries, select Yes)
+    2. OneButton
+    3. MIDI
+    4. Adafruit_NeoPixel
+    5. RotaryEncoder (the one selected in the picture below)
+ ![Capture d’écran 2022-02-24 à 08.19.15.png]
+6. Download and unzip the firmware : https://github.com/KBLiveSolutions/open.control-firmware/archive/refs/heads/main.zip
+7. Open the file open_control_firmware.ino in Arduino
+8. In Arduino go to Tools-> 
+    1. Open Board Manager and search for "Pico"
+    2. Install Raspberry Pi Pico/RP2040 by Earle F. Philhower
+    3. Board: Select "Raspberry Pi RP2040 Boards" then "Raspberry Pi Pico"
+    4. USB Stack: "Adafruit Tiny USB"
+    5. Port: there should be a line that corresponds to the open·control board. It should appear as a COM port, but I don't know exactly the name. If you can't find it, unplug open·control, look at the Port menu, then plug it and select the new line.
+9. Click on the "Upload" arrow in the top menu (Ctrl U)
+**=> The code should be uploaded to  open·control !**
