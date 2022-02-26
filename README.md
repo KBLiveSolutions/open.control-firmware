@@ -13,7 +13,7 @@ Changelog [here](https://github.com/KBLiveSolutions/open.control/discussions/6)
 - Drag and drop the **.uf2** file inside it.  
 - The board will reboot with the new firmware installed.  
 
-**- Boxed :**
+### Boxed
 If you don't have any pedal to plug to switch Input 1, you can connect any mono Jack with the end wrapped with tinfoil as shown on the picture below.
 - Unplug open·control
 - Insert the cable with tinfoil
@@ -23,10 +23,8 @@ If you don't have any pedal to plug to switch Input 1, you can connect any mono 
 
 ![Boxed with tinfoil](./docs/boxed_tinfoil.jpeg)
 
-**- Maker :**
+### Maker
 If you don't have soldered buttons, you can press the mini-switch next to the MCU while plugging the USB cable.
-
-More info on the [open·control Wiki(url=https://github.com/KBLiveSolutions/open.control/wiki)]
 
 ## To change the code :
 1. install the Arduino software : https://www.arduino.cc/en/software
@@ -50,5 +48,10 @@ https://github.com/earlephilhower/arduino-pico/releases/download/global/package_
     - Board: Select "Raspberry Pi RP2040 Boards" then "Raspberry Pi Pico"
     - USB Stack: "Adafruit Tiny USB"
     - Port: there should be a line that corresponds to the open·control board. It should appear as a COM port, but I don't know exactly the name. If you can't find it, unplug open·control, look at the Port menu, then plug it and select the new line.
-9. Click on the "Upload" arrow in the top menu (Ctrl U)
+9. Edit the code
+10. Click on the "Upload" arrow in the top menu (Ctrl U)
 **=> The code should be uploaded to  open·control !**
+
+
+More info on the [open·control Wiki(url=https://github.com/KBLiveSolutions/open.control/wiki)]
+
