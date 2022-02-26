@@ -15,6 +15,11 @@ Changelog [here](https://github.com/KBLiveSolutions/open.control/discussions/6)
 
 **- Boxed :**
 If you don't have any pedal to plug to switch Input 1, you can connect any mono Jack with the end wrapped with tinfoil as shown on the picture below.
+1. Unplug open·control
+2. Insert the cable with tinfoil
+3. Plug the USB cable
+4. Remove the cable with tinfoil
+5. Drop the .uf2 file on the RPI-RP2 drive that appeared
 
 ![Boxed with tinfoil](./docs/boxed_tinfoil.jpeg)
 
