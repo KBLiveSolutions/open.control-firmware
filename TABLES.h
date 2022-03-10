@@ -22,7 +22,10 @@ byte external_MIDI_channel[NUM_BUTTONS + NUM_SLIDERS] = {1, 1, 1, 1, 1, 1, 1, 1}
 byte external_MIDI_type[NUM_BUTTONS + NUM_SLIDERS] = {0, 0, 0, 0, 0, 0, 0, 0};
 
 
-        
+byte init_led_color_red[NUM_LEDS] = {80, 0, 17, 100, 124, 90};
+byte init_led_color_green[NUM_LEDS] = {0, 78, 23, 100, 49, 0};
+byte init_led_color_blue[NUM_LEDS] = {100, 46, 80, 0, 0, 12};
+
 int font_5x7[106][3] = {
   { 0x00, 0x00, 0x00 },  //
   { 0x00, 0x3a, 0x00 },  // !

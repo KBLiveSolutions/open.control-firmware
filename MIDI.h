@@ -8,7 +8,7 @@ void check_cc(byte channel, byte control, byte value, bool serial) {
   for (int i = 0; i < NUM_LEDS; i++) {
     if (l[i].led_control[current_layout] == control) {
       l[i].set_color(value, channel);
-      l[i].led_update(b[i].btn_state);
+      l[i].led_update(b[i].led_state);
     }
     if (i < NUM_SLIDERS) {
       if (r[i].control[current_layout] == control && !r[i].enc_state) r[i]._value = value;
@@ -560,7 +560,9 @@ void onSysEx(uint8_t *data, unsigned int _length, bool midiUSB) {
       case 3: {   // Disconnect message received
           int disconnect_text[5] = { 13, 13, 13, 13, 13};
           disp.build_text(5, disconnect_text);
-          init_LEDS();
+          for(byte i=0; i<NUM_LEDS; i++){
+            l[i].set_default();
+          }
         }
         break;
         

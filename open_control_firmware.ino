@@ -16,7 +16,9 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
 
 #define FIRMWARE_MAJOR_VERSION 1
-#define FIRMWARE_MINOR_VERSION 4
+#define FIRMWARE_MINOR_VERSION 5
+
+// 1.5: fixed LED not updating after long press
 
 #include <Arduino.h>
 #include <Adafruit_TinyUSB.h>
@@ -46,6 +48,7 @@ MIDI_CREATE_INSTANCE(HardwareSerial, Serial1, SERIAL_MIDI);
 #include "ROTARY.h"
 #include "MIDI.h"
 #include "EEPROM.h"
+#include "WEBUSB.h"
 
 
 int iter = 0;
@@ -65,15 +68,17 @@ void setup() {
   // clear_EEPROM();
   setup_EEPROM();
   setup_Buttons();
-  init_LEDS();
+  setup_LEDS();
   setup_MIDI();
   setup_display();
+  setup_webusb();
 }
 
 void loop() {
   USB_MIDI.read();
   SERIAL_MIDI.read();
   Check_User_Input();
+  usbweb_loop();
 }
 
 
