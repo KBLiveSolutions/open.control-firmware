@@ -78,11 +78,11 @@ void loop() {
   USB_MIDI.read();
   SERIAL_MIDI.read();
   Check_User_Input();
-  usbweb_loop();
 }
 
 
 void loop1() {
+  usbweb_loop();
   Display_Handler();
   if (matrix_brightness < 20)  delayMicroseconds(37);
   if (millis() - _now > scrolling_speed / 2) {
