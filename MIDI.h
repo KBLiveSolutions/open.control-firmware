@@ -4,6 +4,14 @@ byte SERIAL_thru = 0;
 
 // =============   GENERIC  ==================
 
+
+
+Adafruit_USBD_WebUSB usb_web;
+
+void sendWebUSB(byte *buf, byte _length) {
+  usb_web.write(buf, _length);
+}
+
 void check_cc(byte channel, byte control, byte value, bool serial) {
   for (int i = 0; i < NUM_LEDS; i++) {
     if (l[i].led_control[current_layout] == control) {
@@ -38,6 +46,7 @@ void check_custom_led() {
     }
   }
 }
+
 
 // =============   MIDI SEND =================
 
@@ -75,6 +84,10 @@ void sendSerialSysEx(const uint8_t *data, int _size) {
   SERIAL_MIDI.sendSysEx(_size, data, true);
 }
 
+void liveUpdateRequest() {   // Live update request
+  byte Live_update_request[7] = { 240, 122, 29, 1, 19, 78, 247 };
+  sendUSBSysEx(Live_update_request, 7);
+}
 
 // =============  EXTERNAL MIDI  =================
 
@@ -95,9 +108,9 @@ void onExternalMessageReceived(byte channel, byte control, byte value, byte type
     }
   }
   if (!is_Control) {
-     if (type == 0) sendSerialNote(control, value, channel);
-     if (type == 1) sendSerialControlChange(control, value, channel);
-     if (type == 2) sendSerialPC(control, channel);
+    if (type == 0) sendSerialNote(control, value, channel);
+    if (type == 1) sendSerialControlChange(control, value, channel);
+    if (type == 2) sendSerialPC(control, channel);
   }
 }
 
@@ -132,159 +145,177 @@ void onSerialNoteOn(byte channel, byte note, byte vel) {
 
 // =============   SYSEX  =================
 
+
+
+void global_dump(bool usbweb)  { // Dump: Receiving {240, 122, 29, 1, 19, 4} from the Editor send each control 1 by 1 {240, 122, 29, 1, 19, 77, Layout, Control, CC Number, Channel, Type, 247}
+  byte sysex_to_send[12] = { 240, 122, 29, 1, 20, 4, 0, 0, 0, 0, 0, 247 };
+  for (byte layout_number = 0; layout_number < NUM_LAYOUT; layout_number++) {
+    sysex_to_send[6] = layout_number;
+    for (byte i = 0; i < NUM_BUTTONS; i += 1) {
+      sysex_to_send[7] = i;
+      // Retrieve and send short button values
+      sysex_to_send[5] = 10;
+      sysex_to_send[8] = b[i].short_control[layout_number];
+      sysex_to_send[9] = b[i].short_ch[layout_number];
+      sysex_to_send[10] = b[i].short_type[layout_number];
+      if (usbweb) sendWebUSB(sysex_to_send, 12);
+      else sendUSBSysEx(sysex_to_send, 12);
+      delay(2);
+      // Retrieve and send snap values
+      sysex_to_send[5] = 11;
+      sysex_to_send[8] = b[i].snap[layout_number];
+      if (usbweb) sendWebUSB(sysex_to_send, 12);
+      else sendUSBSysEx(sysex_to_send, 12);
+      delay(2);
+      // Retrieve and send long button values
+      sysex_to_send[5] = 12;
+      sysex_to_send[8] = b[i].long_control[layout_number];
+      sysex_to_send[9] = b[i].long_ch[layout_number];
+      sysex_to_send[10] = b[i].long_type[layout_number];
+      if (usbweb) sendWebUSB(sysex_to_send, 12);
+      else sendUSBSysEx(sysex_to_send, 12);
+      delay(2);
+      // Retrieve and send double button values
+      sysex_to_send[5] = 19;
+      sysex_to_send[8] = b[i].double_control[layout_number];
+      sysex_to_send[9] = b[i].double_ch[layout_number];
+      sysex_to_send[10] = b[i].double_type[layout_number];
+      if (usbweb) sendWebUSB(sysex_to_send, 12);
+      else sendUSBSysEx(sysex_to_send, 12);
+      delay(2);
+      sysex_to_send[5] = 13;
+      sysex_to_send[8] = b[i].short_toggle[layout_number];
+      sysex_to_send[9] = 0;
+      if (usbweb) sendWebUSB(sysex_to_send, 12);
+      else sendUSBSysEx(sysex_to_send, 12);
+      delay(2);
+      sysex_to_send[5] = 13;
+      sysex_to_send[8] = b[i].long_toggle[layout_number];
+      sysex_to_send[9] = 1;
+      if (usbweb) sendWebUSB(sysex_to_send, 12);
+      else sendUSBSysEx(sysex_to_send, 12);
+      delay(2);
+      sysex_to_send[5] = 13;
+      sysex_to_send[8] = b[i].double_toggle[layout_number];
+      sysex_to_send[9] = 2;
+      if (usbweb) sendWebUSB(sysex_to_send, 12);
+      else sendUSBSysEx(sysex_to_send, 12);
+      delay(2);
+      // Retrieve and send LEDs values
+    }
+    delay(2);
+    for (byte i = 0; i < NUM_LEDS; i += 1) {
+      sysex_to_send[5] = 14;
+      sysex_to_send[7] = i;
+      byte ctrl = l[i].led_control[layout_number];
+      if (ctrl > 128) {
+        sysex_to_send[8] = ctrl - 128;
+        sysex_to_send[9] = 10;
+      }
+      else {
+        sysex_to_send[8] = ctrl;
+        sysex_to_send[9] = l[i].led_channel[layout_number];
+      }
+      sysex_to_send[10] = 1;
+      if (usbweb) sendWebUSB(sysex_to_send, 12);
+      else sendUSBSysEx(sysex_to_send, 12);
+      delay(2);
+    }
+    for (byte i = 0; i < NUM_SLIDERS; i += 1) {
+      // Retrieve and send sliders values
+      sysex_to_send[5] = 17;
+      sysex_to_send[7] = i;
+      sysex_to_send[8] = a[i].control[layout_number];
+      sysex_to_send[9] = a[i].channel[layout_number];
+      if (usbweb) sendWebUSB(sysex_to_send, 12);
+      else sendUSBSysEx(sysex_to_send, 12);
+      delay(2);
+    }
+    for (byte i = 0; i < NUM_ENCODERS; i += 1) {
+      // Retrieve and send encoders values
+      sysex_to_send[5] = 8;
+      sysex_to_send[7] = i;
+      sysex_to_send[8] = r[i].control[layout_number];
+      sysex_to_send[9] = r[i].channel[layout_number];
+      if (usbweb) sendWebUSB(sysex_to_send, 12);
+      else sendUSBSysEx(sysex_to_send, 12);
+      delay(2);
+      // Retrieve and send encoders hold values
+      sysex_to_send[5] = 9;
+      sysex_to_send[7] = i;
+      sysex_to_send[8] = r[i].control_hold[layout_number];
+      sysex_to_send[9] = r[i].channel_hold[layout_number];
+      if (usbweb) sendWebUSB(sysex_to_send, 12);
+      else sendUSBSysEx(sysex_to_send, 12);
+      delay(2);
+    }
+
+    // Retrieve and send display values
+    sysex_to_send[5] = 18;
+    sysex_to_send[7] = 0;
+    sysex_to_send[8] = disp.display_control[layout_number];
+    sysex_to_send[9] = 1;
+    sysex_to_send[10] = 1;
+    if (usbweb) sendWebUSB(sysex_to_send, 12);
+    else sendUSBSysEx(sysex_to_send, 12);
+    delay(2);
+
+    sysex_to_send[5] = 24;
+    sysex_to_send[7] = 0;
+    sysex_to_send[8] = linked_page[layout_number];
+    sysex_to_send[9] = 1;
+    sysex_to_send[10] = 1;
+    if (usbweb) sendWebUSB(sysex_to_send, 12);
+    else sendUSBSysEx(sysex_to_send, 12);
+    delay(2);
+  }
+
+  // Retrieve and send External MIDI values
+  for (byte i = 0; i < 10; i += 1) {
+    sysex_to_send[5] = 21;
+    sysex_to_send[6] = 0;
+    sysex_to_send[7] = i;
+    sysex_to_send[8] = external_MIDI_control[i];
+    sysex_to_send[9] = external_MIDI_channel[i];
+    sysex_to_send[10] = external_MIDI_type[i];
+    if (usbweb) sendWebUSB(sysex_to_send, 12);
+    else sendUSBSysEx(sysex_to_send, 12);
+    delay(2);
+  }
+
+  // Retrieve and send Options
+  for (byte i = 0; i < 2; i++) {
+    sysex_to_send[5] = 30;
+    sysex_to_send[6] = i;
+    sysex_to_send[7] = options[i];
+    if (usbweb) sendWebUSB(sysex_to_send, 12);
+    else sendUSBSysEx(sysex_to_send, 12);
+    delay(2);
+  }
+
+  byte end_array[7] = { 240, 122, 29, 1, 19, 79, 247 };
+  if (usbweb)sendWebUSB(end_array, 7);
+  else sendUSBSysEx(end_array, 7);
+}
+
 void onSysEx(uint8_t *data, unsigned int _length, bool midiUSB) {
   if (data[1] == 122 && data[2] == 29 && data[3] == 1 && data[4] == 19) {
     switch (data[5]) {
-       case 1:
+      case 1:
         { // Handshake with Editor
           byte editor_handshake[] = { 240, 122, 29, 1, 19, 68, FIRMWARE_MAJOR_VERSION, FIRMWARE_MINOR_VERSION, 247 };  //String that answers to the MIDI Remote Script for Ableton Live
           sendUSBSysEx(editor_handshake, 9);
         }
         break;
-        
-       case 5: {   // Live update request
-            byte Live_update_request[7] = { 240, 122, 29, 1, 19, 78, 247 };
-            sendUSBSysEx(Live_update_request, 7);
-        }
+
+      case 5:
+        liveUpdateRequest();
         break;
 
       // Configuration From Editor
 
       case 4:
-        { // Dump: Receiving {240, 122, 29, 1, 19, 4} from the Editor send each control 1 by 1 {240, 122, 29, 1, 19, 77, Layout, Control, CC Number, Channel, Type, 247}
-          byte sysex_to_send[12] = { 240, 122, 29, 1, 20, 4, 0, 0, 0, 0, 0, 247 };
-          for (byte layout_number = 0; layout_number < NUM_LAYOUT; layout_number++) {
-            sysex_to_send[6] = layout_number;
-            for (byte i = 0; i < NUM_BUTTONS; i += 1) {
-              sysex_to_send[7] = i;
-              // Retrieve and send short button values
-              sysex_to_send[5] = 10;
-              sysex_to_send[8] = b[i].short_control[layout_number];
-              sysex_to_send[9] = b[i].short_ch[layout_number];
-              sysex_to_send[10] = b[i].short_type[layout_number];
-              sendUSBSysEx(sysex_to_send, 12);
-              delay(2);
-              // Retrieve and send snap values
-              sysex_to_send[5] = 11;
-              sysex_to_send[8] = b[i].snap[layout_number];
-              sendUSBSysEx(sysex_to_send, 12);
-              delay(2);
-              // Retrieve and send long button values
-              sysex_to_send[5] = 12;
-              sysex_to_send[8] = b[i].long_control[layout_number];
-              sysex_to_send[9] = b[i].long_ch[layout_number];
-              sysex_to_send[10] = b[i].long_type[layout_number];
-              sendUSBSysEx(sysex_to_send, 12);
-              delay(2);
-              // Retrieve and send double button values
-              sysex_to_send[5] = 19;
-              sysex_to_send[8] = b[i].double_control[layout_number];
-              sysex_to_send[9] = b[i].double_ch[layout_number];
-              sysex_to_send[10] = b[i].double_type[layout_number];
-              sendUSBSysEx(sysex_to_send, 12);
-              delay(2);
-              sysex_to_send[5] = 13;
-              sysex_to_send[8] = b[i].short_toggle[layout_number];
-              sysex_to_send[9] = 0;
-              sendUSBSysEx(sysex_to_send, 12);
-              delay(2);
-              sysex_to_send[5] = 13;
-              sysex_to_send[8] = b[i].long_toggle[layout_number];
-              sysex_to_send[9] = 1;
-              sendUSBSysEx(sysex_to_send, 12);
-              delay(2);
-              sysex_to_send[5] = 13;
-              sysex_to_send[8] = b[i].double_toggle[layout_number];
-              sysex_to_send[9] = 2;
-              sendUSBSysEx(sysex_to_send, 12);
-              delay(2);
-              // Retrieve and send LEDs values
-            }
-            delay(2);
-            for (byte i = 0; i < NUM_LEDS; i += 1) {
-              sysex_to_send[5] = 14;
-              sysex_to_send[7] = i;
-              byte ctrl = l[i].led_control[layout_number];
-              if (ctrl > 128) {
-                sysex_to_send[8] = ctrl - 128;
-                sysex_to_send[9] = 10;
-              } 
-              else {
-                sysex_to_send[8] = ctrl;
-                sysex_to_send[9] = l[i].led_channel[layout_number];
-              }
-              sysex_to_send[10] = 1;
-              sendUSBSysEx(sysex_to_send, 12);
-              delay(2);
-            }
-            for (byte i = 0; i < NUM_SLIDERS; i += 1) {
-              // Retrieve and send sliders values
-              sysex_to_send[5] = 17;
-              sysex_to_send[7] = i;
-              sysex_to_send[8] = a[i].control[layout_number];
-              sysex_to_send[9] = a[i].channel[layout_number];
-              sendUSBSysEx(sysex_to_send, 12);
-              delay(2);
-            }
-            for (byte i = 0; i < NUM_ENCODERS; i += 1) {
-              // Retrieve and send encoders values
-              sysex_to_send[5] = 8;
-              sysex_to_send[7] = i;
-              sysex_to_send[8] = r[i].control[layout_number];
-              sysex_to_send[9] = r[i].channel[layout_number];
-              sendUSBSysEx(sysex_to_send, 12);
-              delay(2);
-              // Retrieve and send encoders hold values
-              sysex_to_send[5] = 9;
-              sysex_to_send[7] = i;
-              sysex_to_send[8] = r[i].control_hold[layout_number];
-              sysex_to_send[9] = r[i].channel_hold[layout_number];
-              sendUSBSysEx(sysex_to_send, 12);
-              delay(2);
-            }
-
-            // Retrieve and send display values
-            sysex_to_send[5] = 18;
-            sysex_to_send[7] = 0;
-            sysex_to_send[8] = disp.display_control[layout_number];
-            sysex_to_send[9] = 1;
-            sysex_to_send[10] = 1;
-            sendUSBSysEx(sysex_to_send, 12);
-            delay(2);
-
-            sysex_to_send[5] = 24;
-            sysex_to_send[7] = 0;
-            sysex_to_send[8] = linked_page[layout_number];
-            sysex_to_send[9] = 1;
-            sysex_to_send[10] = 1;
-            sendUSBSysEx(sysex_to_send, 12);
-            delay(2);
-          }
-
-          // Retrieve and send External MIDI values
-          for (byte i = 0; i < 10; i += 1) {
-            sysex_to_send[5] = 21;
-            sysex_to_send[6] = 0;
-            sysex_to_send[7] = i;
-            sysex_to_send[8] = external_MIDI_control[i];
-            sysex_to_send[9] = external_MIDI_channel[i];
-            sysex_to_send[10] = external_MIDI_type[i];
-            sendUSBSysEx(sysex_to_send, 12);
-            delay(2);
-          }
-
-          // Retrieve and send Options
-          for (byte i = 0; i < 2; i++) {
-            sysex_to_send[5] = 30;
-            sysex_to_send[6] = i;
-            sysex_to_send[7] = options[i];
-            sendUSBSysEx(sysex_to_send, 12);
-            delay(2);
-          }
-
-          byte end_array[7] = { 240, 122, 29, 1, 19, 79, 247 };
-          sendUSBSysEx(end_array, 7);
-        }
+        global_dump(LOW);
         break;
 
       case 10:
@@ -482,13 +513,13 @@ void onSysEx(uint8_t *data, unsigned int _length, bool midiUSB) {
           raw_eeprom_store(341, BRIGHTNESS);
         }
         break;
-        
+
       case 24:
         { // Sets Linked page
           linked_page[data[6]] = data[7];
           byte data_array[9] = { 240, 122, 29, 1, 19, 24, data[6], data[7], 247};
           sendUSBSysEx(data_array, 9);
-          raw_eeprom_store(304+data[6], data[7]);
+          raw_eeprom_store(304 + data[6], data[7]);
         }
         break;
 
@@ -515,7 +546,7 @@ void onSysEx(uint8_t *data, unsigned int _length, bool midiUSB) {
         break;
 
       case 28:
-        { 
+        {
           int num = data[6];
           l[num].show_direct_color(data[7], data[8], data[9]);
         }
@@ -530,9 +561,9 @@ void onSysEx(uint8_t *data, unsigned int _length, bool midiUSB) {
           // sendSerialSysEx(data_array, 9);
         }
         break;
-  
-      
-      
+
+
+
       // Connect Disconnect
 
 
@@ -541,7 +572,7 @@ void onSysEx(uint8_t *data, unsigned int _length, bool midiUSB) {
           byte Live_handshake[] = { 240, 122, 29, 1, 19, 2, 247 };  //String that answers to the MIDI Remote Script for Ableton Live
           if (midiUSB) sendUSBSysEx(Live_handshake, 7);
           else sendSerialSysEx(Live_handshake, 7);
-          
+
           for (byte i = 0; i < 2; i++) {  // sending the options
             byte _option = options[i];
             byte sysex_array[9] = { 240, 122, 29, 1, 19, 30, i, _option, 247 };
@@ -560,12 +591,12 @@ void onSysEx(uint8_t *data, unsigned int _length, bool midiUSB) {
       case 3: {   // Disconnect message received
           int disconnect_text[5] = { 13, 13, 13, 13, 13};
           disp.build_text(5, disconnect_text);
-          for(byte i=0; i<NUM_LEDS; i++){
+          for (byte i = 0; i < NUM_LEDS; i++) {
             l[i].set_default();
           }
         }
         break;
-        
+
 
       // receive Data from Live
 
@@ -587,7 +618,7 @@ void onSysEx(uint8_t *data, unsigned int _length, bool midiUSB) {
 
       case 51:
         { // Text received
-          byte text_len = _length-8;
+          byte text_len = _length - 8;
           if (data[6] == disp.display_control[current_layout]) {
             disp.text_len = text_len;
             for (byte i = 0; i < text_len; i++) {
@@ -600,7 +631,7 @@ void onSysEx(uint8_t *data, unsigned int _length, bool midiUSB) {
 
       case 54:
         { // Direct Text received
-          byte text_len = _length-8;
+          byte text_len = _length - 8;
           for (byte i = 0; i < text_len; i++) {
             disp.temp_text[i] = data[7 + i];
           }

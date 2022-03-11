@@ -47,8 +47,8 @@ MIDI_CREATE_INSTANCE(HardwareSerial, Serial1, SERIAL_MIDI);
 #include "ANALOG.h"
 #include "ROTARY.h"
 #include "MIDI.h"
-#include "EEPROM.h"
 #include "WEBUSB.h"
+#include "EEPROM.h"
 
 
 int iter = 0;
