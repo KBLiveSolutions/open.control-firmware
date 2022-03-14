@@ -1,14 +1,33 @@
 
+
+WEBUSB_URL_DEF(landingPage, 1 /*https*/, "adafruit.github.io/Adafruit_TinyUSB_Arduino/examples/webusb-rgb/index.html");
+
+void open_web_editor(){
+  
+  USB_MIDI.sendNoteOn(2, 2, 2);
+  usb_web.setLandingPage(&landingPage);
+//  usb_web.begin();
+}
+
+
+void check_editor() {
+  if(b[6].btn_state && b[7].btn_state) open_web_editor();
+}
+
 void line_state_callback(bool connected)
 {
+  
+  byte editor_handshake[] = { 240, 122, 29, 1, 19, 68, FIRMWARE_MAJOR_VERSION, FIRMWARE_MINOR_VERSION, 247 };  //String that answers to the MIDI Remote Script for Ableton Live
+  sendWebUSB(editor_handshake, 9);
   // connected = green, disconnected = red
   //  send_data(connected ? HIGH : LOW);
-  pixels.fill(connected ? 0x00ff00 : 0xff0000);
-  pixels.show();
+  // pixels.fill(connected ? 0x00ff00 : 0xff0000);
+  // pixels.show();
 }
 
 void setup_webusb()
 {
+  // usb_web.setLandingPage(&landingPage);
   usb_web.setLineStateCallback(line_state_callback);
   usb_web.begin();
   while ( !TinyUSBDevice.mounted() ) delay(1);
@@ -40,7 +59,7 @@ void usbweb_loop()
         sysex_data[i + 1] = sysex_buffer[i];
       }
       sysex_data[len + 1] = 247;
-      USB_MIDI.sendSysEx(len+2, sysex_data, true);
+     // USB_MIDI.sendSysEx(len+2, sysex_data, true);
       onSysEx(sysex_data, len+2, LOW);
       sysex_in = LOW;
     }

@@ -62,6 +62,7 @@ void Check_User_Input() {
   r[iter % 2].update_rotary();
   iter++;
   if (iter == NUM_BUTTONS) iter = 0;
+  check_editor();
 }
 
 void setup() {
