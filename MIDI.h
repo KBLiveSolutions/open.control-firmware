@@ -144,7 +144,11 @@ void onSerialNoteOn(byte channel, byte note, byte vel) {
 }
 
 // =============   SYSEX  =================
-
+void editor_handshake(bool usbweb) {
+  byte editor_handshake[] = { 240, 122, 29, 1, 19, 68, FIRMWARE_MAJOR_VERSION, FIRMWARE_MINOR_VERSION, 247 };  //String that answers to the MIDI Remote Script for Ableton Live
+  if (usbweb)sendWebUSB(editor_handshake, 9);
+  else sendUSBSysEx(editor_handshake, 9);
+}
 
 
 void global_dump(bool usbweb)  { // Dump: Receiving {240, 122, 29, 1, 19, 4} from the Editor send each control 1 by 1 {240, 122, 29, 1, 19, 77, Layout, Control, CC Number, Channel, Type, 247}
@@ -301,11 +305,8 @@ void global_dump(bool usbweb)  { // Dump: Receiving {240, 122, 29, 1, 19, 4} fro
 void onSysEx(uint8_t *data, unsigned int _length, bool midiUSB) {
   if (data[1] == 122 && data[2] == 29 && data[3] == 1 && data[4] == 19) {
     switch (data[5]) {
-      case 1:
-        { // Handshake with Editor
-          byte editor_handshake[] = { 240, 122, 29, 1, 19, 68, FIRMWARE_MAJOR_VERSION, FIRMWARE_MINOR_VERSION, 247 };  //String that answers to the MIDI Remote Script for Ableton Live
-          sendUSBSysEx(editor_handshake, 9);
-        }
+      case 1: // Handshake with Editor
+        editor_handshake(LOW);
         break;
 
       case 5:
