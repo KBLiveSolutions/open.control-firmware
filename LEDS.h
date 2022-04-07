@@ -120,13 +120,13 @@ void Led::fade_slow(int beat) {
 void Led::blink_slow(int beat) {
   if (beat == 2 || beat == 3) led_off();
   else  show_color();
-  delay(1);
+  // delay(1);
 }
 
 void Led::blink_fast(byte beat) {
   if (beat == 1 || beat == 3 ) led_off();
   else show_color();
-  delay(1);
+ // delay(1);
 }
 
 void Led::show_green() {

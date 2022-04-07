@@ -85,7 +85,7 @@ void loop() {
 
 void loop1() {
   Display_Handler();
-  if (matrix_brightness < 20)  delayMicroseconds(37);
+  if (matrix_brightness < 20)  delayMicroseconds(47);
   if (millis() - _now > scrolling_speed / 2) {
     disp.inc_scroll();
     _now = millis();
