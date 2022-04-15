@@ -302,11 +302,11 @@ void global_dump(bool usbweb)  { // Dump: Receiving {240, 122, 29, 1, 19, 4} fro
   else sendUSBSysEx(end_array, 7);
 }
 
-void onSysEx(uint8_t *data, unsigned int _length, bool midiUSB) {
+void onSysEx(uint8_t *data, unsigned int _length, bool midiUSB, bool webUSB) {
   if (data[1] == 122 && data[2] == 29 && data[3] == 1 && data[4] == 19) {
     switch (data[5]) {
       case 1: // Handshake with Editor
-        editor_handshake(LOW);
+        editor_handshake(webUSB);
         break;
 
       case 5:
@@ -333,6 +333,7 @@ void onSysEx(uint8_t *data, unsigned int _length, bool midiUSB) {
           eeprom_store(rcvd_layout, num, btn_type);
           eeprom_store(rcvd_layout, num + 8, btn_ctrl);
           eeprom_store(rcvd_layout, num + 16, btn_chnl);
+          eeprom_commit();
         }
         break;
 
@@ -344,6 +345,7 @@ void onSysEx(uint8_t *data, unsigned int _length, bool midiUSB) {
           byte snap = data[8];
           b[num].snap[rcvd_layout] = snap;
           eeprom_store(rcvd_layout, num + 32, snap);
+          eeprom_commit();
         }
         break;
 
@@ -361,6 +363,7 @@ void onSysEx(uint8_t *data, unsigned int _length, bool midiUSB) {
           eeprom_store(rcvd_layout, num + 40, btn_type);
           eeprom_store(rcvd_layout, num + 48, btn_ctrl);
           eeprom_store(rcvd_layout, num + 56, btn_chnl);
+          eeprom_commit();
         }
         break;
 
@@ -377,6 +380,7 @@ void onSysEx(uint8_t *data, unsigned int _length, bool midiUSB) {
           eeprom_store(rcvd_layout, num + 364, btn_type);
           eeprom_store(rcvd_layout, num + 372, btn_ctrl);
           eeprom_store(rcvd_layout, num + 380, btn_chnl);
+          eeprom_commit();
         }
         break;
 
@@ -398,6 +402,7 @@ void onSysEx(uint8_t *data, unsigned int _length, bool midiUSB) {
             b[num].double_toggle[rcvd_layout] = toggle;
             eeprom_store(rcvd_layout, num + 388, toggle);
           }
+          eeprom_commit();
         }
         break;
 
@@ -413,6 +418,7 @@ void onSysEx(uint8_t *data, unsigned int _length, bool midiUSB) {
           eeprom_store(rcvd_layout, num + 72, led_type);
           eeprom_store(rcvd_layout, num + 78, led_ctrl);
           eeprom_store(rcvd_layout, num + 84, led_chnl);
+          eeprom_commit();
         }
         break;
 
@@ -426,6 +432,7 @@ void onSysEx(uint8_t *data, unsigned int _length, bool midiUSB) {
           l[num].led_channel[rcvd_layout] = led_chnl;
           eeprom_store(rcvd_layout, 78, led_ctrl);
           eeprom_store(rcvd_layout, 84, led_chnl);
+          eeprom_commit();
           check_custom_led();
         }
         break;
@@ -440,6 +447,7 @@ void onSysEx(uint8_t *data, unsigned int _length, bool midiUSB) {
           r[num].channel[rcvd_layout] = channel;
           eeprom_store(rcvd_layout, num + 90, control);
           eeprom_store(rcvd_layout, num + 94, channel);
+          eeprom_commit();
         }
         break;
 
@@ -453,6 +461,7 @@ void onSysEx(uint8_t *data, unsigned int _length, bool midiUSB) {
           r[num].channel_hold[rcvd_layout] = channel;
           eeprom_store(rcvd_layout, num + 92, control);
           eeprom_store(rcvd_layout, num + 96, channel);
+          eeprom_commit();
         }
         break;
 
@@ -466,6 +475,7 @@ void onSysEx(uint8_t *data, unsigned int _length, bool midiUSB) {
           a[num].channel[rcvd_layout] = channel;
           eeprom_store(rcvd_layout, num + 98, control);
           eeprom_store(rcvd_layout, num + 100, channel);
+          eeprom_commit();
         }
         break;
 
@@ -475,6 +485,7 @@ void onSysEx(uint8_t *data, unsigned int _length, bool midiUSB) {
           byte layout = data[8];
           disp.display_control[rcvd_layout] = layout;
           eeprom_store(rcvd_layout, 102, layout);
+          eeprom_commit();
         }
         break;
 
@@ -496,6 +507,7 @@ void onSysEx(uint8_t *data, unsigned int _length, bool midiUSB) {
             external_MIDI_channel[but_num] = value;
             raw_eeprom_store(330 + but_num, value);
           }
+          eeprom_commit();
         }
         break;
 
@@ -503,6 +515,7 @@ void onSysEx(uint8_t *data, unsigned int _length, bool midiUSB) {
         { // Sets Display Brightness
           matrix_brightness = (127 - data[6]) * 2;
           raw_eeprom_store(340, matrix_brightness);
+          eeprom_commit();
         }
         break;
 
@@ -512,6 +525,7 @@ void onSysEx(uint8_t *data, unsigned int _length, bool midiUSB) {
           pixels.setBrightness(BRIGHTNESS);
           pixels.show();
           raw_eeprom_store(341, BRIGHTNESS);
+          eeprom_commit();
         }
         break;
 
@@ -521,6 +535,7 @@ void onSysEx(uint8_t *data, unsigned int _length, bool midiUSB) {
           byte data_array[9] = { 240, 122, 29, 1, 19, 24, data[6], data[7], 247};
           sendUSBSysEx(data_array, 9);
           raw_eeprom_store(304 + data[6], data[7]);
+          eeprom_commit();
         }
         break;
 
@@ -528,6 +543,7 @@ void onSysEx(uint8_t *data, unsigned int _length, bool midiUSB) {
         { // Sets USB Through
           USB_thru = data[6];
           raw_eeprom_store(342, USB_thru);
+          eeprom_commit();
         }
         break;
 
@@ -535,6 +551,7 @@ void onSysEx(uint8_t *data, unsigned int _length, bool midiUSB) {
         { // Sets SERIAL Through
           SERIAL_thru = data[6];
           raw_eeprom_store(343, SERIAL_thru);
+          eeprom_commit();
         }
         break;
 
@@ -679,12 +696,12 @@ void onSysEx(uint8_t *data, unsigned int _length, bool midiUSB) {
 
 
 void onUSBSysEx(uint8_t *data, unsigned int _length) {
-  onSysEx(data, _length, HIGH);
+  onSysEx(data, _length, HIGH, LOW);
 }
 
 
 void onSerialSysEx(uint8_t *data, unsigned int _length) {
-  onSysEx(data, _length, LOW);
+  onSysEx(data, _length, LOW, LOW);
 }
 
 // =============   CLOCK  ==================

@@ -52,7 +52,7 @@ MIDI_CREATE_INSTANCE(HardwareSerial, Serial1, SERIAL_MIDI);
 
 
 int iter = 0;
-void Check_User_Input() {
+void UserInput() {
   if (b[iter].ext_MIDI_On){
     b[iter].tick(b[iter].ext_MIDI_On);  // standard button check   
   }
@@ -78,8 +78,8 @@ void setup() {
 void loop() {
   USB_MIDI.read();
   SERIAL_MIDI.read();
-  Check_User_Input();
-  usbweb_loop();
+  UserInput();
+  WebUSB();
 }
 
 

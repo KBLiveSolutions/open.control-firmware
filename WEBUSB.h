@@ -38,7 +38,7 @@ bool sysex_in = LOW;
 const int BUFFER_SIZE = 20;
 char sysex_buffer[BUFFER_SIZE];
 
-void usbweb_loop()
+void WebUSB()
 {
   if (usb_web.available() > 0) {
 
@@ -59,8 +59,7 @@ void usbweb_loop()
         sysex_data[i + 1] = sysex_buffer[i];
       }
       sysex_data[len + 1] = 247;
-     // USB_MIDI.sendSysEx(len+2, sysex_data, true);
-      onSysEx(sysex_data, len+2, LOW);
+      onSysEx(sysex_data, len+2, LOW, HIGH);
       sysex_in = LOW;
     }
 

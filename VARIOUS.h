@@ -1,14 +1,15 @@
 
 void eeprom_store(int rcvd_layout, int _offset, int value) {
   EEPROM.write(100 * rcvd_layout + _offset, value);
-  EEPROM.commit();
 }
 
 void raw_eeprom_store(int position, int  value) {
   EEPROM.write(position, value);
-  EEPROM.commit();
 }
 
+void eeprom_commit(){
+  EEPROM.commit();
+}
 
 void sendMessage(byte type, byte control, byte value, byte channel) {
   switch (type) {

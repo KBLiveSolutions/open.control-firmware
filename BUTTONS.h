@@ -36,9 +36,10 @@ class NewButton : public OneButton {
     byte double_ch[NUM_LAYOUT] = {16, 16, 16};
     byte double_type[NUM_LAYOUT] = {1, 1, 1};
     byte double_toggle[NUM_LAYOUT] = {0, 0, 0};
-    byte short_value[NUM_LAYOUT] = {0, 0, 0};
+    byte short_value[NUM_LAYOUT] = {127, 127, 127};
     byte long_value[NUM_LAYOUT] = {0, 0, 0};
     byte double_value[NUM_LAYOUT] = {0, 0, 0};
+    byte last_short_toggle_value[NUM_LAYOUT] = {0, 0, 0};
 
     void begin();
     void button_check(bool state);
@@ -46,9 +47,15 @@ class NewButton : public OneButton {
     void longClick();
     void doubleClick();
     void change_led(bool state);
-    void attachSimple(parameterizedCallbackFunction f) {OneButton::attachClick(f, this);}
-    void attachDouble(parameterizedCallbackFunction f) {OneButton::attachDoubleClick(f, this);}
-    void attachLong(parameterizedCallbackFunction f) {OneButton::attachLongPressStart(f, this);}
+    void attachSimple(parameterizedCallbackFunction f) {
+      OneButton::attachClick(f, this);
+    }
+    void attachDouble(parameterizedCallbackFunction f) {
+      OneButton::attachDoubleClick(f, this);
+    }
+    void attachLong(parameterizedCallbackFunction f) {
+      OneButton::attachLongPressStart(f, this);
+    }
 };
 
 
@@ -79,11 +86,23 @@ void NewButton::button_check(bool state) {
   if (state && !btn_state) {
     btn_state = HIGH;
     change_led(HIGH);
-    if (snap[current_layout] > 0) sendMessage(short_type[current_layout], short_control[current_layout], 127, short_ch[current_layout]);
+    if (snap[current_layout] > 0) {
+      if (short_toggle[current_layout] == 0) {
+        sendMessage(short_type[current_layout], short_control[current_layout], short_value[current_layout], short_ch[current_layout]);
+      }
+      else {
+        if (last_short_toggle_value[current_layout] == 0) last_short_toggle_value[current_layout] = short_value[current_layout];
+        else {
+          last_short_toggle_value[current_layout] = 0;
+          change_led(LOW);
+        }
+        sendMessage(short_type[current_layout], short_control[current_layout], last_short_toggle_value[current_layout], short_ch[current_layout]);
+      }
+    }
   }
   if (!state && btn_state)  {
     btn_state = LOW;
-    if (snap[current_layout] > 0) {
+    if (snap[current_layout] > 0 && short_toggle[current_layout] == 0) {
       sendMessage(short_type[current_layout], short_control[current_layout], 0, short_ch[current_layout]);
       change_led(LOW);
     }
