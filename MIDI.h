@@ -20,6 +20,7 @@ void check_cc(byte channel, byte control, byte value, bool serial) {
     }
     if (i < NUM_SLIDERS) {
       if (r[i].control[current_layout] == control && !r[i].enc_state) r[i]._value = value;
+      if (r[i].control_hold[current_layout] == control && !r[i].enc_state) r[i]._value_hold = value;
       if (a[i].control[current_layout] == control) a[i]._value = value;
     }
     if (!serial) delay(1);

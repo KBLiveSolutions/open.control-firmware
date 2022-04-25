@@ -78,15 +78,15 @@ void setup() {
 void loop() {
   USB_MIDI.read();
   SERIAL_MIDI.read();
-  UserInput();
   WebUSB();
 }
 
 
 void loop1() {
+  UserInput();
   Display_Handler();
-  if (matrix_brightness < 20)  delayMicroseconds(47);
-  if (millis() - _now > scrolling_speed / 2) {
+ // if (matrix_brightness < 20)  delayMicroseconds(27);
+  if (!showing_page && millis() - _now > scrolling_speed / 2) {
     disp.inc_scroll();
     _now = millis();
   }
