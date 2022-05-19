@@ -19,6 +19,7 @@
 #define FIRMWARE_MINOR_VERSION 5
 
 // 1.5: fixed LED not updating after long press
+// fixed hold & turn not working for certain parameters
 
 #include <Arduino.h>
 #include <Adafruit_TinyUSB.h>
