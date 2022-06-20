@@ -30,7 +30,6 @@ Adafruit_USBD_MIDI usb_midi;
 MIDI_CREATE_INSTANCE(Adafruit_USBD_MIDI, usb_midi, USB_MIDI);
 MIDI_CREATE_INSTANCE(HardwareSerial, Serial1, SERIAL_MIDI);
 
-
 #define NUM_BUTTONS 8
 #define NUM_LEDS 6
 #define NUM_SLIDERS 2
@@ -67,6 +66,9 @@ void UserInput() {
 }
 
 void setup() {
+
+  Serial.begin(9600);
+  
   // clear_EEPROM();
   setup_EEPROM();
   setup_Buttons();
@@ -79,6 +81,7 @@ void setup() {
 void loop() {
   USB_MIDI.read();
   SERIAL_MIDI.read();
+   if (Serial.read()) {SERIAL_MIDI.sendNoteOn(2, 2, 2);}
   WebUSB();
 }
 

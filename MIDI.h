@@ -752,7 +752,7 @@ void clock_start_serial() {
 void setup_MIDI() {
   USBDevice.setManufacturerDescriptor("KB Live Solutions");
   USBDevice.setProductDescriptor("open·control");
-
+  
   USB_MIDI.begin(MIDI_CHANNEL_OMNI);
   USB_MIDI.turnThruOff();
   USB_MIDI.setHandleControlChange(onUSBControlChange);
@@ -763,15 +763,16 @@ void setup_MIDI() {
   USB_MIDI.setHandleStop(clock_stop);
   USB_MIDI.setHandleStart(clock_start);
   USB_MIDI.setHandleContinue(clock_continue);
-
+  
   SERIAL_MIDI.begin(MIDI_CHANNEL_OMNI);
   SERIAL_MIDI.turnThruOff();
-  SERIAL_MIDI.setHandleControlChange(onSerialControlChange);
   SERIAL_MIDI.setHandleSystemExclusive(onSerialSysEx);
+  SERIAL_MIDI.setHandleControlChange(onSerialControlChange);
   SERIAL_MIDI.setHandleNoteOn(onSerialNoteOn);
   SERIAL_MIDI.setHandleNoteOff(onSerialNoteOn);
-  SERIAL_MIDI.setHandleClock(clock_received);
-  SERIAL_MIDI.setHandleStop(clock_stop);
-  USB_MIDI.setHandleStart(clock_start_serial);
-  USB_MIDI.setHandleContinue(clock_continue);
+ // SERIAL_MIDI.setHandleClock(clock_received);
+ // SERIAL_MIDI.setHandleStop(clock_stop);
+ // SERIAL_MIDI.setHandleStart(clock_start_serial);
+ // SERIAL_MIDI.setHandleContinue(clock_continue);
+
 }
