@@ -24,8 +24,7 @@
 #include <Arduino.h>
 #include <Adafruit_TinyUSB.h>
 #include <OneButton.h>
-#include <EEPROM.h>
-#include <MIDI.h>
+Adafruit_USBD_WebUSB usb_web;
 Adafruit_USBD_MIDI usb_midi;
 MIDI_CREATE_INSTANCE(Adafruit_USBD_MIDI, usb_midi, USB_MIDI);
 MIDI_CREATE_INSTANCE(HardwareSerial, Serial1, SERIAL_MIDI);
@@ -81,7 +80,6 @@ void setup() {
 void loop() {
   USB_MIDI.read();
   SERIAL_MIDI.read();
-   if (Serial.read()) {SERIAL_MIDI.sendNoteOn(2, 2, 2);}
   WebUSB();
 }
 

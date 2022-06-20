@@ -3,8 +3,6 @@
 WEBUSB_URL_DEF(landingPage, 1 /*https*/, "adafruit.github.io/Adafruit_TinyUSB_Arduino/examples/webusb-rgb/index.html");
 
 void open_web_editor(){
-  
-  USB_MIDI.sendNoteOn(2, 2, 2);
   usb_web.setLandingPage(&landingPage);
 //  usb_web.begin();
 }

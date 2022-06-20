@@ -6,7 +6,6 @@ byte SERIAL_thru = 0;
 
 
 
-Adafruit_USBD_WebUSB usb_web;
 
 void sendWebUSB(byte *buf, byte _length) {
   usb_web.write(buf, _length);
