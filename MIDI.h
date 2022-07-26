@@ -13,7 +13,7 @@ void sendWebUSB(byte *buf, byte _length) {
 
 void check_cc(byte channel, byte control, byte value, bool serial) {
   for (int i = 0; i < NUM_LEDS; i++) {
-    if (l[i].led_control[current_layout] == control) {
+    if (l[i].led_control[current_layout] == control && l[i].led_channel[current_layout] == channel) {
       l[i].set_color(value, channel);
       l[i].led_update(b[i].led_state);
     }
@@ -413,6 +413,7 @@ void onSysEx(uint8_t *data, unsigned int _length, bool midiUSB, bool webUSB) {
           byte led_ctrl = data[8];
           byte led_type = data[9];
           byte led_chnl = data[10];
+          l[num].led_type[rcvd_layout] = led_type;
           l[num].led_control[rcvd_layout] = led_ctrl;
           l[num].led_channel[rcvd_layout] = led_chnl;
           eeprom_store(rcvd_layout, num + 72, led_type);

@@ -26,7 +26,7 @@ byte init_led_color_red[NUM_LEDS] = {80, 0, 17, 100, 124, 90};
 byte init_led_color_green[NUM_LEDS] = {0, 78, 23, 100, 49, 0};
 byte init_led_color_blue[NUM_LEDS] = {100, 46, 80, 0, 0, 12};
 
-int font_5x7[106][3] = {
+int font_5x7[109][3] = {
   { 0x00, 0x00, 0x00 },  //
   { 0x00, 0x3a, 0x00 },  // !
   { 0x30, 0x00, 0x30 },  // "
@@ -132,7 +132,10 @@ int font_5x7[106][3] = {
   { 0x07, 0x04, 0x00 },  // open.control caracter 7
   { 0x02, 0x05, 0x02 },  // open.control caracter 8
   { 0x0F, 0x00, 0x00 },  // open.control caracter 9
-  { 0x04, 0x00, 0x00 }   // open.control caracter 9
+  { 0x04, 0x00, 0x00 },   // open.control caracter 9
+  { 0x20, 0x00, 0x00 },  // .
+  { 0x30, 0x00, 0x00 },  // ..
+  { 0x38, 0x00, 0x00 }   // ...
 };
 
 

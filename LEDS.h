@@ -42,10 +42,19 @@ class Led {
     int led_control[NUM_LAYOUT] = {0, 0, 0};
     int led_channel[NUM_LAYOUT] = {16, 16, 16};
     void set_color(byte color, byte channel) {
+      if(channel>13){
       r = color_index[color][0];
       g = color_index[color][1];
       b = color_index[color][2];
       led_channel[current_layout] = channel;
+        
+      }
+      else{
+      r = color_index[num*4][0];
+      g = color_index[num*4][1];
+      b = color_index[num*4][2];
+        
+      }
       if (color == 0) {
         r = 0;
         g = 0;

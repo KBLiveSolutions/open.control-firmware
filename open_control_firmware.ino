@@ -20,10 +20,15 @@
 
 // 1.5: fixed LED not updating after long press
 // fixed hold & turn not working for certain parameters
+// added webusb
+// added custom actions
+// added custom MIDI for LEDs
 
 #include <Arduino.h>
 #include <Adafruit_TinyUSB.h>
 #include <OneButton.h>
+#include <EEPROM.h>
+#include <MIDI.h>
 Adafruit_USBD_WebUSB usb_web;
 Adafruit_USBD_MIDI usb_midi;
 MIDI_CREATE_INSTANCE(Adafruit_USBD_MIDI, usb_midi, USB_MIDI);

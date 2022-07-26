@@ -55,7 +55,11 @@ public:
     scrolled = LOW;
     clear_concat();
   //  text_len = text_len;
-    if (_text_len < 8) index = (36 - (_text_len * 4)) / 2;
+    concat_text[index] = font_5x7[106+current_layout][0];
+      index++;
+      index++;
+    
+    if (_text_len < 8) index = ((36 - (_text_len * 4)) / 2)-2;
     for (int i = 0; i < _text_len; i++) {
       for (int j = 0; j < 3; j++) {
         if (index < MAX_CONCAT) concat_text[index] = font_5x7[text[i]][j];
